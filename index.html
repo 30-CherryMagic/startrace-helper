@@ -51,7 +51,6 @@ input[type=date]::-webkit-date-and-time-value{text-align:left}
 @media (max-width:460px){.grid2{grid-template-columns:1fr}}
 .btn{font:inherit;font-weight:600;border-radius:8px;padding:10px 14px;cursor:pointer;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);text-decoration:none;text-align:center}
 .btn.ghost{background:transparent;color:var(--accent)}
-.btn[aria-disabled="true"]{border-color:var(--line);color:var(--muted);cursor:default}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
 .drop{border:1.5px dashed var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:0}
 .drop img{border-radius:6px;max-height:160px;object-fit:contain;background:var(--bg)}
@@ -105,6 +104,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <label><span data-i="date"></span><input type="date" id="date"></label>
     </div>
     <label><span data-i="pos"></span><input type="range" id="pos" min="15" max="85" value="52"></label>
+    <label><span data-i="wm"></span><input type="range" id="wm" min="0" max="40" value="15"></label>
     <canvas id="cv"></canvas>
     <img id="out" alt="" hidden>
     <p class="hint" id="savehint" hidden data-i="save"></p>
@@ -141,48 +141,48 @@ const EV_START=Date.UTC(2026,9,12,9,0,0), EV_END=Date.UTC(2026,9,18,14,59,59); /
 const T={
 zh:{sub:"PLAVE《HYPERDRIVE》串流活動 認證助手（非官方）",deadline:"本小時上傳期限（:59 前）",setup:"基本設定",xid:"你的 X ID（不含 @）",firstpost:"主貼文網址（發了第一篇之後貼上）",
 
-maker:"認證圖產生器",startshot:"① 開始截圖（播放 10 秒內）",endshot:"② 結束截圖（結束前 10 秒內）",platform:"平台",date:"串流日期",pos:"文字高度位置（不要擋到上方時間和下方進度條）",
-save:"長按上面的圖片選「拷貝」，到 X 的回覆裡貼上就會附上圖片（電腦按右鍵「複製圖片」）。",reply:"回覆用文字",copytxt:"複製文字",openx:"開啟主貼文",needpost:"在 X 開啟回覆（先填主貼文網址）",
-replyhint:"流程：長按圖片「拷貝」→「開啟主貼文」按回覆，貼上圖片 → 回來按「複製文字」，再貼到回覆裡。",firsthint:"還沒有主貼文：先在 X 自己發第一篇（附圖＋這段文字），發完從分享選單「複製連結」，貼到上方「主貼文網址」，這裡就會出現「開啟主貼文」按鈕。",form:"Google 表單（只交一次）",
+maker:"認證圖產生器",wm:"整面水印濃度（拉到最左關閉）",startshot:"① 開始截圖（播放 10 秒內）",endshot:"② 結束截圖（結束前 10 秒內）",platform:"平台",date:"串流日期",pos:"文字高度位置（不要擋到上方時間和下方進度條）",
+save:"長按上面的圖片選「拷貝」，到 X 的回覆裡貼上就會附上圖片（電腦按右鍵「複製圖片」）。",reply:"回覆用文字",copytxt:"複製文字",openx:"開啟主貼文",needpost:"分享到 X 發第一篇",
+replyhint:"流程：長按圖片「拷貝」→「開啟主貼文」按回覆，貼上圖片 → 回來按「複製文字」，再貼到回覆裡。",firsthint:"還沒有主貼文：按「分享到 X 發第一篇」會叫出分享選單，選 X 就會附上圖片。文字會同時自動複製，如果沒出現就長按貼上。發完後從分享選單「複製連結」，貼到上方「主貼文網址」，按鈕就會變成「開啟主貼文」。",form:"Google 表單（只交一次）",
 formhint:"只需要提交「主貼文」的連結，提交後不能修改。真名（韓文或英文）也不能改，送出前務必確認。",rules:"容易出錯的地方",
 privacy:"截圖只在你的瀏覽器裡處理，不會上傳到任何地方。本工具為粉絲自製，與官方無關。",
 r:["帳號不能是私密帳號","圖上一定要有 X ID，沒有就不算","活動結束後到抽獎完成前，不要刪貼文","抽獎前不要改 X ID","不要修改截圖內容（加 ID 和日期以外的加工都可能被判定竄改）","中獎通知後 7 天內要回覆","所有時間以 KST（韓國時間）為準"],
 before:"活動尚未開始（10/12 18:00 KST 開始）",during:"活動進行中（至 10/18 23:59 KST）",after:"活動已結束",
 tz:o=>`你的裝置時區和 KST 相差 ${o} 小時。截圖上的手機時間會是當地時間，但上傳期限以 KST 為準。`,
-noid:"請先填 X ID",nopost:"填入主貼文網址後，就能直接開啟回覆畫面。",postok:"已讀到主貼文 ✓",copied:"已複製",copyfail:"無法自動複製，請長按選取",need2:"請選兩張截圖"},
+noid:"請先填 X ID",nopost:"填入主貼文網址後，就能直接開啟回覆畫面。",postok:"已讀到主貼文 ✓",copied:"已複製",copyfail:"無法自動複製，請長按選取",need2:"請選兩張截圖",noshare:"這個瀏覽器不支援分享，請長按圖片拷貝後自己到 X 發文"},
 ja:{sub:"PLAVE『HYPERDRIVE』ストリーミングイベント 認証アシスタント（非公式）",deadline:"この時間帯の投稿期限（:59まで）",setup:"基本設定",xid:"あなたの X ID（@なし）",firstpost:"最初の投稿のURL（投稿後に貼り付け）",
 
-maker:"認証画像メーカー",startshot:"① 開始時キャプチャ（再生10秒以内）",endshot:"② 終了時キャプチャ（終了前10秒以内）",platform:"音源サイト",date:"ストリーミング日付",pos:"文字の高さ（上部の時刻と再生バーに重ねない）",
-save:"上の画像を長押しして「コピー」し、Xの返信に貼り付けると画像が添付されます（PCは右クリック→画像をコピー）。",reply:"返信用テキスト",copytxt:"テキストをコピー",openx:"最初の投稿を開く",needpost:"Xで返信を開く（先に最初の投稿URLを入力）",
-replyhint:"手順：画像を長押しで「コピー」→「最初の投稿を開く」で返信をタップして画像を貼り付け → 戻って「テキストをコピー」し、返信に貼り付け。",firsthint:"最初の投稿がまだの場合：Xで最初の投稿（画像＋このテキスト）を自分でしてから、共有メニューの「リンクをコピー」で上の「最初の投稿のURL」に貼り付けてください。ここに「最初の投稿を開く」ボタンが出ます。",form:"Googleフォーム（1回のみ）",
+maker:"認証画像メーカー",wm:"全面透かしの濃さ（左端でオフ）",startshot:"① 開始時キャプチャ（再生10秒以内）",endshot:"② 終了時キャプチャ（終了前10秒以内）",platform:"音源サイト",date:"ストリーミング日付",pos:"文字の高さ（上部の時刻と再生バーに重ねない）",
+save:"上の画像を長押しして「コピー」し、Xの返信に貼り付けると画像が添付されます（PCは右クリック→画像をコピー）。",reply:"返信用テキスト",copytxt:"テキストをコピー",openx:"最初の投稿を開く",needpost:"Xに共有して最初の投稿",
+replyhint:"手順：画像を長押しで「コピー」→「最初の投稿を開く」で返信をタップして画像を貼り付け → 戻って「テキストをコピー」し、返信に貼り付け。",firsthint:"最初の投稿がまだの場合：「Xに共有して最初の投稿」で共有メニューが開くので、Xを選ぶと画像が添付されます。テキストも自動コピーされるので、入っていなければ長押しで貼り付けてください。投稿後、共有メニューの「リンクをコピー」で上の「最初の投稿のURL」に貼り付けると、ボタンが「最初の投稿を開く」に変わります。",form:"Googleフォーム（1回のみ）",
 formhint:"提出するのは最初の投稿のリンクだけ。提出後は修正不可。実名（ハングル/英語）も変更できないので、送信前に必ず確認。",rules:"注意ポイント",
 privacy:"画像はブラウザ内だけで処理され、どこにもアップロードされません。ファン有志のツールで公式とは無関係です。",
 r:["非公開アカウントは参加不可","画像にX IDがないと無効","イベント終了後も当選発表まで投稿を削除しない","当選発表までX IDを変更しない","画像を加工・改ざんしない（ID・日付の記入以外）","当選連絡から7日以内に返信","時間はすべてKST基準"],
 before:"イベント開始前（10/12 18:00 KST開始）",during:"イベント開催中（10/18 23:59 KSTまで）",after:"イベントは終了しました",
 tz:o=>`端末のタイムゾーンはKSTと${o}時間ずれています。スクショの時刻は現地時間ですが、投稿期限はKST基準です。`,
-noid:"先にX IDを入力してください",nopost:"最初の投稿URLを入れると返信画面を直接開けます。",postok:"最初の投稿を確認 ✓",copied:"コピーしました",copyfail:"コピーできませんでした。長押しで選択してください",need2:"キャプチャを2枚選んでください"},
+noid:"先にX IDを入力してください",nopost:"最初の投稿URLを入れると返信画面を直接開けます。",postok:"最初の投稿を確認 ✓",copied:"コピーしました",copyfail:"コピーできませんでした。長押しで選択してください",need2:"キャプチャを2枚選んでください",noshare:"このブラウザは共有に対応していません。画像を長押しでコピーしてXで投稿してください"},
 ko:{sub:"PLAVE 'HYPERDRIVE' 스트리밍 이벤트 인증 도우미 (비공식)",deadline:"이번 시간 업로드 마감 (:59까지)",setup:"기본 설정",xid:"내 X 아이디 (@ 제외)",firstpost:"첫 게시물 URL (게시 후 붙여넣기)",
 
-maker:"인증 이미지 만들기",startshot:"① 시작 캡처 (재생 10초 이내)",endshot:"② 종료 캡처 (종료 10초 전 이내)",platform:"음원 사이트",date:"스트리밍 날짜",pos:"글자 높이 (상단 시각·재생바를 가리지 않게)",
-save:"위 이미지를 길게 눌러 '복사'하고 X 답글에 붙여넣으면 이미지가 첨부돼요 (PC는 우클릭 → 이미지 복사).",reply:"답글용 텍스트",copytxt:"텍스트 복사",openx:"첫 게시물 열기",needpost:"X에서 답글 열기 (먼저 첫 게시물 URL 입력)",
-replyhint:"순서: 이미지 길게 눌러 '복사' → '첫 게시물 열기'에서 답글을 누르고 이미지 붙여넣기 → 돌아와서 '텍스트 복사' 후 답글에 붙여넣기.",firsthint:"아직 첫 게시물이 없다면: X에서 직접 첫 게시물(이미지＋이 텍스트)을 올린 뒤 공유 메뉴의 '링크 복사'로 위 '첫 게시물 URL'에 붙여넣으세요. 그러면 여기에 '첫 게시물 열기' 버튼이 나타나요.",form:"구글폼 (1회만)",
+maker:"인증 이미지 만들기",wm:"전체 워터마크 농도 (맨 왼쪽은 끄기)",startshot:"① 시작 캡처 (재생 10초 이내)",endshot:"② 종료 캡처 (종료 10초 전 이내)",platform:"음원 사이트",date:"스트리밍 날짜",pos:"글자 높이 (상단 시각·재생바를 가리지 않게)",
+save:"위 이미지를 길게 눌러 '복사'하고 X 답글에 붙여넣으면 이미지가 첨부돼요 (PC는 우클릭 → 이미지 복사).",reply:"답글용 텍스트",copytxt:"텍스트 복사",openx:"첫 게시물 열기",needpost:"X에 공유해서 첫 게시물 올리기",
+replyhint:"순서: 이미지 길게 눌러 '복사' → '첫 게시물 열기'에서 답글을 누르고 이미지 붙여넣기 → 돌아와서 '텍스트 복사' 후 답글에 붙여넣기.",firsthint:"아직 첫 게시물이 없다면: 'X에 공유해서 첫 게시물 올리기'를 누르면 공유 메뉴가 떠요. X를 고르면 이미지가 첨부돼요. 텍스트도 자동 복사되니 없으면 길게 눌러 붙여넣으세요. 올린 뒤 공유 메뉴의 '링크 복사'로 위 '첫 게시물 URL'에 붙여넣으면 버튼이 '첫 게시물 열기'로 바뀌어요.",form:"구글폼 (1회만)",
 formhint:"첫 게시물 링크만 제출하면 되고, 제출 후 수정 불가. 실명(한글/영문)도 바꿀 수 없으니 꼭 확인하세요.",rules:"주의할 점",
 privacy:"이미지는 브라우저 안에서만 처리되며 어디에도 업로드되지 않아요. 팬이 만든 비공식 도구입니다.",
 r:["비공개 계정은 참여 불가","인증 이미지에 X 아이디가 없으면 무효","이벤트 종료 후 당첨자 선정까지 게시물 삭제 금지","당첨 발표 전 X 아이디 변경 금지","이미지 편집·조작 금지 (아이디·날짜 기입 외)","당첨 안내 후 7일 내 회신","모든 시간은 KST 기준"],
 before:"이벤트 시작 전 (10/12 18:00 KST 시작)",during:"이벤트 진행 중 (10/18 23:59 KST까지)",after:"이벤트가 종료되었어요",
 tz:o=>`기기 시간대가 KST와 ${o}시간 차이 나요. 캡처 속 시각은 현지 시간이지만 업로드 마감은 KST 기준이에요.`,
-noid:"먼저 X 아이디를 입력하세요",nopost:"첫 게시물 URL을 넣으면 답글 화면을 바로 열 수 있어요.",postok:"첫 게시물 확인 ✓",copied:"복사했어요",copyfail:"복사할 수 없어요. 길게 눌러 선택하세요",need2:"캡처 두 장을 선택하세요"},
+noid:"먼저 X 아이디를 입력하세요",nopost:"첫 게시물 URL을 넣으면 답글 화면을 바로 열 수 있어요.",postok:"첫 게시물 확인 ✓",copied:"복사했어요",copyfail:"복사할 수 없어요. 길게 눌러 선택하세요",need2:"캡처 두 장을 선택하세요",noshare:"이 브라우저는 공유를 지원하지 않아요. 이미지를 길게 눌러 복사한 뒤 X에서 직접 올려 주세요"},
 en:{sub:"PLAVE 'HYPERDRIVE' streaming event proof helper (unofficial)",deadline:"Upload deadline this hour (by :59)",setup:"Setup",xid:"Your X ID (without @)",firstpost:"First post URL (paste after posting)",
 
-maker:"Proof image maker",startshot:"① Start screenshot (within 10s of start)",endshot:"② End screenshot (within last 10s)",platform:"Platform",date:"Streaming date",pos:"Text height (keep clear of the clock and progress bar)",
-save:"Long-press the image above and tap Copy, then paste it into your X reply to attach it (on PC: right-click → Copy image).",reply:"Reply text",copytxt:"Copy text",openx:"Open first post",needpost:"Open reply on X (add first post URL first)",
-replyhint:"Steps: long-press the image → Copy → \"Open first post\", tap reply and paste the image → come back, tap \"Copy text\" and paste it into the reply.",firsthint:"No first post yet: post it yourself on X (image + this text), then use Share → Copy link and paste it into \"First post URL\" above. An \"Open first post\" button will appear here.",form:"Google Form (submit once)",
+maker:"Proof image maker",wm:"Full-image watermark strength (far left = off)",startshot:"① Start screenshot (within 10s of start)",endshot:"② End screenshot (within last 10s)",platform:"Platform",date:"Streaming date",pos:"Text height (keep clear of the clock and progress bar)",
+save:"Long-press the image above and tap Copy, then paste it into your X reply to attach it (on PC: right-click → Copy image).",reply:"Reply text",copytxt:"Copy text",openx:"Open first post",needpost:"Share to X as first post",
+replyhint:"Steps: long-press the image → Copy → \"Open first post\", tap reply and paste the image → come back, tap \"Copy text\" and paste it into the reply.",firsthint:"No first post yet: \"Share to X as first post\" opens the share sheet; pick X and the image is attached. The text is copied too, so paste it if it's missing. After posting, use Share → Copy link and paste it into \"First post URL\" above; the button then becomes \"Open first post\".",form:"Google Form (submit once)",
 formhint:"Submit only your first post's link. It can't be edited after submitting, and neither can your real name (Korean or English), so double-check first.",rules:"Common mistakes",
 privacy:"Images are processed in your browser only and never uploaded. Fan-made tool, not affiliated with VLAST.",
 r:["Private accounts can't participate","Images without your X ID don't count","Don't delete posts until winners are chosen","Don't change your X ID before winners are announced","Don't edit the screenshots (anything beyond adding ID and date may count as tampering)","Reply within 7 days of the winner notice","All times are KST"],
 before:"Not started yet (starts 10/12 18:00 KST)",during:"Event in progress (until 10/18 23:59 KST)",after:"The event has ended",
 tz:o=>`Your device time zone is ${o}h off from KST. Screenshot clocks show local time, but upload deadlines follow KST.`,
-noid:"Enter your X ID first",nopost:"Add your first post URL to open the reply screen directly.",postok:"First post found ✓",copied:"Copied",copyfail:"Couldn't copy. Long-press to select",need2:"Choose both screenshots"}
+noid:"Enter your X ID first",nopost:"Add your first post URL to open the reply screen directly.",postok:"First post found ✓",copied:"Copied",copyfail:"Couldn't copy. Long-press to select",need2:"Choose both screenshots",noshare:"This browser can't share. Long-press the image to copy it and post on X yourself"}
 };
 const $=id=>document.getElementById(id);
 const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -220,7 +220,7 @@ function renderReply(){
   const txt=`${$("plat").value||PL[0]} 「Star Trace」 ${($("date").value||kstDate()).replace(/-/g,".")}\n${TAGS}`;
   $("rtext").textContent=txt;
   // Status links open in the X app on phones (intent links don't), so open the first post and let the user paste
-  const pid=postId();const a=$("openpost");a.textContent=pid?L.openx:L.needpost;a.setAttribute("aria-disabled",!pid);
+  const pid=postId();const a=$("openpost");a.textContent=pid?L.openx:L.needpost;
   if(pid)a.href=`https://x.com/${postUser()}/status/${pid}`;else a.removeAttribute("href");
   $("replyhint").textContent=pid?L.replyhint:L.firsthint;
   $("posthint").textContent=pid?L.postok:L.nopost;$("posthint").className="hint"+(pid?" done-ok":"");
@@ -230,7 +230,7 @@ $("post").addEventListener("input",()=>{ls.set("st_post",$("post").value.trim())
 $("plat").addEventListener("change",()=>{ls.set("st_plat",$("plat").value);renderReply()});
 $("date").value=kstDate();
 $("date").addEventListener("change",()=>{draw();renderReply()});
-$("pos").addEventListener("input",draw);
+$("pos").addEventListener("input",draw);$("wm").addEventListener("input",draw);
 
 // image maker
 const imgs=[null,null];
@@ -251,11 +251,33 @@ function draw(){
   const text=`${id} / ${$("date").value.replace(/-/g,".")}`;
   let fs=Math.round(cv.width*0.045);c.font=`800 ${fs}px "IBM Plex Sans",system-ui,sans-serif`;
   while(c.measureText(text).width>cv.width*0.9&&fs>10){fs--;c.font=`800 ${fs}px "IBM Plex Sans",system-ui,sans-serif`}
+  // Tiled diagonal watermark, faint enough that the player text underneath stays readable
+  const wa=$("wm").value/100;
+  if(wa>0){
+    const wfs=Math.max(12,Math.round(fs*0.55));c.save();c.globalAlpha=wa;
+    c.font=`600 ${wfs}px "IBM Plex Sans",system-ui,sans-serif`;c.textAlign="center";c.textBaseline="middle";
+    c.lineJoin="round";c.lineWidth=Math.max(1,wfs*0.08);c.strokeStyle="#000";c.fillStyle="#fff";
+    c.translate(cv.width/2,h/2);c.rotate(-Math.PI/6);
+    const D=Math.hypot(cv.width,h)/2,sx=c.measureText(text).width+wfs*3,sy=wfs*4;
+    for(let yy=-D,row=0;yy<=D;yy+=sy,row++)for(let xx=-D-(row%2?sx/2:0);xx<=D+sx;xx+=sx){c.strokeText(text,xx,yy);c.fillText(text,xx,yy)}
+    c.restore();
+  }
+  c.font=`800 ${fs}px "IBM Plex Sans",system-ui,sans-serif`;
   const y=h*($("pos").value/100);c.textAlign="center";c.textBaseline="middle";
   c.lineJoin="round";c.lineWidth=Math.max(3,fs*0.18);c.strokeStyle="#000";c.strokeText(text,cv.width/2,y);
   c.fillStyle="#fff";c.fillText(text,cv.width/2,y);
   cv.toBlob(b=>{outBlob=b;const o=$("out");if(o.src)URL.revokeObjectURL(o.src);o.src=URL.createObjectURL(b);o.hidden=false;$("savehint").hidden=false},"image/png");
 }
+// No first post yet: share the image via the share sheet (X keeps the image, may drop text), so copy the text alongside
+$("openpost").addEventListener("click",e=>{
+  if(postId())return;
+  e.preventDefault();const L=T[lang];if(!outBlob)return toast(L.need2);
+  const text=$("rtext").textContent;try{navigator.clipboard.writeText(text)}catch(_){}
+  const data={files:[new File([outBlob],"StarTrace.png",{type:"image/png"})],text};
+  const share=navigator.canShare&&navigator.canShare(data)?data:navigator.canShare&&navigator.canShare({files:data.files})?{files:data.files}:null;
+  if(!share)return toast(L.noshare);
+  navigator.share(share).catch(err=>{if(err&&err.name!=="AbortError")toast(L.noshare)});
+});
 $("copytxt").onclick=()=>{
   const t=$("rtext").textContent;
   try{navigator.clipboard.writeText(t).then(()=>toast(T[lang].copied),sel)}catch(e){sel()}
