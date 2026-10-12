@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Star Trace 串流認證助手</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+/* Layout: one narrow "pit board" column — clock strip on top, then hour board, image maker, reply text, rules */
+:root{
+  --bg:#EEF1F6; --panel:#FFFFFF; --ink:#111733; --muted:#5B6382; --line:#D7DCE8;
+  --accent:#2B4EF0; --accent-ink:#FFFFFF; --done:#11845B; --warn:#C27A00; --bad:#C3313F;
+  --f-display:"Saira Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Hiragino Sans","Noto Sans CJK TC","Noto Sans CJK JP","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1022; --panel:#151B33; --ink:#E9ECF7; --muted:#9AA2C0; --line:#2A3253;
+  --accent:#7C93FF; --accent-ink:#0C1022; --done:#3CC48E; --warn:#F2B13A; --bad:#FF6B78; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1022; --panel:#151B33; --ink:#E9ECF7; --muted:#9AA2C0; --line:#2A3253;
+  --accent:#7C93FF; --accent-ink:#0C1022; --done:#3CC48E; --warn:#F2B13A; --bad:#FF6B78; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:16px 48px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+h1{font-family:var(--f-display);font-weight:800;font-size:1.9rem;letter-spacing:.02em;margin:0;line-height:1.1;text-wrap:balance}
+h1 small{display:block;font-family:var(--f-body);font-size:.8rem;font-weight:400;color:var(--muted);letter-spacing:0}
+.lang{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.lang button{border:0;background:transparent;color:var(--muted);padding:6px 10px;font:inherit;font-size:.85rem;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--f-display);font-weight:600;font-size:1.25rem;letter-spacing:.04em;text-transform:uppercase;margin:0}
+.clock{background:var(--ink);color:var(--bg);border:0;
+  background-image:repeating-linear-gradient(90deg,transparent 0 10px,rgba(127,127,127,.12) 10px 20px);}
+.clock .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+.big{font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.lbl{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.cd.warn{color:var(--warn)} .cd.bad{color:var(--bad)}
+.status{font-size:.85rem;opacity:.9}
+.tznote{font-size:.82rem;background:rgba(127,127,127,.18);border-radius:6px;padding:6px 8px}
+label{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+input[type=text],input[type=url],input[type=date],select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;box-sizing:border-box}
+input:focus-visible,button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:460px){.grid2{grid-template-columns:1fr}}
+.plats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+@media (max-width:420px){.plats{grid-template-columns:repeat(3,1fr)}}
+.plat{border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);padding:10px 4px;font:inherit;font-weight:600;font-size:.85rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.plat .mk{font-size:.7rem;font-weight:400;color:var(--muted)}
+.plat[aria-pressed="true"]{border-color:var(--done);background:var(--done);color:#fff}
+.plat[aria-pressed="true"] .mk{color:#fff}
+.tally{display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem;color:var(--muted)}
+.tally b{font-family:var(--f-display);font-size:1.5rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-weight:600;border-radius:8px;padding:10px 14px;cursor:pointer;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);text-decoration:none;text-align:center}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:0}
+.drop img{border-radius:6px;max-height:160px;object-fit:contain;background:var(--bg)}
+.drop span{font-size:.8rem;color:var(--muted)}
+canvas{display:none}
+#out{width:100%;border-radius:8px;border:1px solid var(--line)}
+.hint{font-size:.82rem;color:var(--muted);margin:0}
+pre{white-space:pre-wrap;word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;margin:0;font:inherit;font-size:.9rem}
+ul.rules{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.9rem}
+ul.rules li::marker{color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.9rem}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.done-ok{color:var(--done);font-weight:600}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>STAR TRACE <span style="color:var(--accent)">STREAMING</span>
+      <small data-i="sub"></small></h1>
+    <div class="lang" role="group" aria-label="Language">
+      <button id="l-zh" data-l="zh">繁中</button><button id="l-ja" data-l="ja">日本語</button><button id="l-ko" data-l="ko">한국어</button><button id="l-en" data-l="en">EN</button>
+    </div>
+  </header>
+
+  <section class="clock" aria-live="polite">
+    <div class="row">
+      <div><div class="lbl">KST</div><div class="big" id="kst">--:--:--</div></div>
+      <div><div class="lbl" data-i="deadline"></div><div class="big cd" id="cd">--:--</div></div>
+    </div>
+    <div class="status" id="evstatus"></div>
+    <div class="tznote" id="tznote" hidden></div>
+  </section>
+
+  <section>
+    <h2 data-i="setup"></h2>
+    <div class="grid2">
+      <label><span data-i="xid"></span><input type="text" id="xid" placeholder="plave_official" autocomplete="off"></label>
+      <label><span data-i="firstpost"></span><input type="url" id="post" placeholder="https://x.com/.../status/123..."></label>
+    </div>
+    <p class="hint" id="posthint"></p>
+  </section>
+
+  <section>
+    <h2 data-i="board"></h2>
+    <p class="hint" data-i="boardhint"></p>
+    <div class="plats" id="plats"></div>
+    <div class="tally">
+      <span><span data-i="thishour"></span> <b id="hcount">0</b>/5</span>
+      <span><span data-i="total"></span> <b id="tcount">0</b></span>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-i="maker"></h2>
+    <div class="grid2">
+      <div class="drop"><span data-i="startshot"></span><input type="file" id="f1" accept="image/*"><img id="p1" alt="" hidden></div>
+      <div class="drop"><span data-i="endshot"></span><input type="file" id="f2" accept="image/*"><img id="p2" alt="" hidden></div>
+    </div>
+    <div class="grid2">
+      <label><span data-i="platform"></span><select id="plat"></select></label>
+      <label><span data-i="date"></span><input type="date" id="date"></label>
+    </div>
+    <label><span data-i="pos"></span><input type="range" id="pos" min="15" max="85" value="52"></label>
+    <canvas id="cv"></canvas>
+    <img id="out" alt="" hidden>
+    <p class="hint" id="savehint" hidden data-i="save"></p>
+    <div class="btns" id="outbtns" hidden>
+      <button class="btn" id="dlimg" data-i="dlimg"></button>
+      <button class="btn ghost" id="markdone" data-i="markdone"></button>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-i="reply"></h2>
+    <pre id="rtext"></pre>
+    <div class="btns">
+      <button class="btn" id="copytxt" data-i="copytxt"></button>
+      <a class="btn ghost" id="intent" target="_blank" rel="noopener" data-i="openx"></a>
+    </div>
+    <p class="hint" data-i="replyhint"></p>
+  </section>
+
+  <section>
+    <h2 data-i="form"></h2>
+    <p class="hint" data-i="formhint"></p>
+    <div class="btns"><a class="btn ghost" href="https://forms.gle/adeHvU37s5ochofRA" target="_blank" rel="noopener">forms.gle/adeHvU37s5ochofRA</a></div>
+  </section>
+
+  <section>
+    <h2 data-i="rules"></h2>
+    <ul class="rules" id="rules"></ul>
+  </section>
+  <p class="hint" data-i="privacy"></p>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const PL=["Melon","genie","Bugs","FLO","Spotify"];
+const TAGS="#PLAVE_StarTrace_STREAMING #HYPERDRIVE";
+const EV_START=Date.UTC(2026,9,12,9,0,0), EV_END=Date.UTC(2026,9,18,14,59,59); // 18:00–23:59:59 KST
+const T={
+zh:{sub:"PLAVE《HYPERDRIVE》串流活動 認證助手（非官方）",deadline:"本小時上傳期限（:59 前）",setup:"基本設定",xid:"你的 X ID（不含 @）",firstpost:"主貼文網址（發了第一篇之後貼上）",
+board:"本小時認證進度",boardhint:"每個平台每小時只算 1 次。上傳完成後點一下平台做記號，換小時會自動歸零。",thishour:"本小時",total:"活動累計",
+maker:"認證圖產生器",startshot:"① 開始截圖（播放 10 秒內）",endshot:"② 結束截圖（結束前 10 秒內）",platform:"平台",date:"串流日期",pos:"文字高度位置（不要擋到上方時間和下方進度條）",
+save:"按「下載圖片」存檔。如果下載不了，手機可以長按上面的圖片儲存，電腦按右鍵另存。",dlimg:"下載圖片",saved:"已下載",markdone:"這個平台本小時已上傳 ✓",reply:"回覆用文字",copytxt:"複製文字",openx:"在 X 開啟回覆",
+replyhint:"「在 X 開啟回覆」會打開回覆主貼文的畫面並帶入文字，圖片需要自己附上。",form:"Google 表單（只交一次）",
+formhint:"只需要提交「主貼文」的連結，提交後不能修改。真名（韓文或英文）也不能改，送出前務必確認。",rules:"容易出錯的地方",
+privacy:"截圖只在你的瀏覽器裡處理，不會上傳到任何地方。本工具為粉絲自製，與官方無關。",
+r:["帳號不能是私密帳號","圖上一定要有 X ID，沒有就不算","活動結束後到抽獎完成前，不要刪貼文","抽獎前不要改 X ID","不要修改截圖內容（加 ID 和日期以外的加工都可能被判定竄改）","中獎通知後 7 天內要回覆","所有時間以 KST（韓國時間）為準"],
+before:"活動尚未開始（10/12 18:00 KST 開始）",during:"活動進行中（至 10/18 23:59 KST）",after:"活動已結束",
+tz:o=>`你的裝置時區和 KST 相差 ${o} 小時。截圖上的手機時間會是當地時間，但上傳期限以 KST 為準。`,
+noid:"請先填 X ID",nopost:"填入主貼文網址後，就能直接開啟回覆畫面。",postok:"已讀到主貼文 ✓",copied:"已複製",copyfail:"無法自動複製，請長按選取",marked:p=>`${p} 已記錄`,need2:"請選兩張截圖"},
+ja:{sub:"PLAVE『HYPERDRIVE』ストリーミングイベント 認証アシスタント（非公式）",deadline:"この時間帯の投稿期限（:59まで）",setup:"基本設定",xid:"あなたの X ID（@なし）",firstpost:"最初の投稿のURL（投稿後に貼り付け）",
+board:"この時間帯の認証状況",boardhint:"各音源サイトは1時間に1回のみ反映。投稿したらサイトをタップして記録。時間が変わると自動リセット。",thishour:"この時間",total:"累計",
+maker:"認証画像メーカー",startshot:"① 開始時キャプチャ（再生10秒以内）",endshot:"② 終了時キャプチャ（終了前10秒以内）",platform:"音源サイト",date:"ストリーミング日付",pos:"文字の高さ（上部の時刻と再生バーに重ねない）",
+save:"「画像をダウンロード」で保存。できない場合、スマホは上の画像を長押し、PCは右クリックで保存してください。",dlimg:"画像をダウンロード",saved:"ダウンロードしました",markdone:"このサイトはこの時間投稿済み ✓",reply:"返信用テキスト",copytxt:"テキストをコピー",openx:"Xで返信を開く",
+replyhint:"「Xで返信を開く」で最初の投稿への返信画面がテキスト入りで開きます。画像はご自身で添付してください。",form:"Googleフォーム（1回のみ）",
+formhint:"提出するのは最初の投稿のリンクだけ。提出後は修正不可。実名（ハングル/英語）も変更できないので、送信前に必ず確認。",rules:"注意ポイント",
+privacy:"画像はブラウザ内だけで処理され、どこにもアップロードされません。ファン有志のツールで公式とは無関係です。",
+r:["非公開アカウントは参加不可","画像にX IDがないと無効","イベント終了後も当選発表まで投稿を削除しない","当選発表までX IDを変更しない","画像を加工・改ざんしない（ID・日付の記入以外）","当選連絡から7日以内に返信","時間はすべてKST基準"],
+before:"イベント開始前（10/12 18:00 KST開始）",during:"イベント開催中（10/18 23:59 KSTまで）",after:"イベントは終了しました",
+tz:o=>`端末のタイムゾーンはKSTと${o}時間ずれています。スクショの時刻は現地時間ですが、投稿期限はKST基準です。`,
+noid:"先にX IDを入力してください",nopost:"最初の投稿URLを入れると返信画面を直接開けます。",postok:"最初の投稿を確認 ✓",copied:"コピーしました",copyfail:"コピーできませんでした。長押しで選択してください",marked:p=>`${p} を記録`,need2:"キャプチャを2枚選んでください"},
+ko:{sub:"PLAVE 'HYPERDRIVE' 스트리밍 이벤트 인증 도우미 (비공식)",deadline:"이번 시간 업로드 마감 (:59까지)",setup:"기본 설정",xid:"내 X 아이디 (@ 제외)",firstpost:"첫 게시물 URL (게시 후 붙여넣기)",
+board:"이번 시간 인증 현황",boardhint:"음원 사이트별 1시간에 1회만 반영. 업로드 후 사이트를 눌러 체크하면 정각에 자동 초기화돼요.",thishour:"이번 시간",total:"누적",
+maker:"인증 이미지 만들기",startshot:"① 시작 캡처 (재생 10초 이내)",endshot:"② 종료 캡처 (종료 10초 전 이내)",platform:"음원 사이트",date:"스트리밍 날짜",pos:"글자 높이 (상단 시각·재생바를 가리지 않게)",
+save:"'이미지 다운로드'로 저장하세요. 안 되면 휴대폰은 위 이미지를 길게 눌러, PC는 우클릭으로 저장하세요.",dlimg:"이미지 다운로드",saved:"다운로드했어요",markdone:"이 사이트 이번 시간 업로드 완료 ✓",reply:"답글용 텍스트",copytxt:"텍스트 복사",openx:"X에서 답글 열기",
+replyhint:"'X에서 답글 열기'를 누르면 첫 게시물 답글 화면이 텍스트와 함께 열려요. 이미지는 직접 첨부하세요.",form:"구글폼 (1회만)",
+formhint:"첫 게시물 링크만 제출하면 되고, 제출 후 수정 불가. 실명(한글/영문)도 바꿀 수 없으니 꼭 확인하세요.",rules:"주의할 점",
+privacy:"이미지는 브라우저 안에서만 처리되며 어디에도 업로드되지 않아요. 팬이 만든 비공식 도구입니다.",
+r:["비공개 계정은 참여 불가","인증 이미지에 X 아이디가 없으면 무효","이벤트 종료 후 당첨자 선정까지 게시물 삭제 금지","당첨 발표 전 X 아이디 변경 금지","이미지 편집·조작 금지 (아이디·날짜 기입 외)","당첨 안내 후 7일 내 회신","모든 시간은 KST 기준"],
+before:"이벤트 시작 전 (10/12 18:00 KST 시작)",during:"이벤트 진행 중 (10/18 23:59 KST까지)",after:"이벤트가 종료되었어요",
+tz:o=>`기기 시간대가 KST와 ${o}시간 차이 나요. 캡처 속 시각은 현지 시간이지만 업로드 마감은 KST 기준이에요.`,
+noid:"먼저 X 아이디를 입력하세요",nopost:"첫 게시물 URL을 넣으면 답글 화면을 바로 열 수 있어요.",postok:"첫 게시물 확인 ✓",copied:"복사했어요",copyfail:"복사할 수 없어요. 길게 눌러 선택하세요",marked:p=>`${p} 기록 완료`,need2:"캡처 두 장을 선택하세요"},
+en:{sub:"PLAVE 'HYPERDRIVE' streaming event proof helper (unofficial)",deadline:"Upload deadline this hour (by :59)",setup:"Setup",xid:"Your X ID (without @)",firstpost:"First post URL (paste after posting)",
+board:"This hour's progress",boardhint:"Each platform counts once per hour. Tap a platform after you upload; it resets automatically on the hour.",thishour:"This hour",total:"Total",
+maker:"Proof image maker",startshot:"① Start screenshot (within 10s of start)",endshot:"② End screenshot (within last 10s)",platform:"Platform",date:"Streaming date",pos:"Text height (keep clear of the clock and progress bar)",
+save:"Tap \"Download image\" to save. If that fails, long-press the image on mobile or right-click on PC.",dlimg:"Download image",saved:"Downloaded",markdone:"Uploaded for this platform this hour ✓",reply:"Reply text",copytxt:"Copy text",openx:"Open reply on X",
+replyhint:"\"Open reply on X\" opens a reply to your first post with the text filled in. Attach the image yourself.",form:"Google Form (submit once)",
+formhint:"Submit only your first post's link. It can't be edited after submitting, and neither can your real name (Korean or English), so double-check first.",rules:"Common mistakes",
+privacy:"Images are processed in your browser only and never uploaded. Fan-made tool, not affiliated with VLAST.",
+r:["Private accounts can't participate","Images without your X ID don't count","Don't delete posts until winners are chosen","Don't change your X ID before winners are announced","Don't edit the screenshots (anything beyond adding ID and date may count as tampering)","Reply within 7 days of the winner notice","All times are KST"],
+before:"Not started yet (starts 10/12 18:00 KST)",during:"Event in progress (until 10/18 23:59 KST)",after:"The event has ended",
+tz:o=>`Your device time zone is ${o}h off from KST. Screenshot clocks show local time, but upload deadlines follow KST.`,
+noid:"Enter your X ID first",nopost:"Add your first post URL to open the reply screen directly.",postok:"First post found ✓",copied:"Copied",copyfail:"Couldn't copy. Long-press to select",marked:p=>`${p} recorded`,need2:"Choose both screenshots"}
+};
+const $=id=>document.getElementById(id);
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let lang=ls.get("st_lang",(navigator.language||"zh").slice(0,2));if(!T[lang])lang="zh";
+let log=ls.get("st_log",{});
+const pad=n=>String(n).padStart(2,"0");
+const kst=()=>new Date(Date.now()+9*3600e3);
+const hourKey=()=>{const d=kst();return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}`};
+const kstDate=()=>{const d=kst();return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`};
+function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,1800)}
+
+function applyLang(){
+  const L=T[lang];document.documentElement.lang=lang==="zh"?"zh-Hant":lang;
+  document.querySelectorAll("[data-i]").forEach(e=>{const v=L[e.dataset.i];if(typeof v==="string")e.textContent=v});
+  document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===lang));
+  $("rules").innerHTML="";L.r.forEach(x=>{const li=document.createElement("li");li.textContent=x;$("rules").appendChild(li)});
+  const off=-new Date().getTimezoneOffset()/60-9;const tz=$("tznote");
+  if(off!==0){tz.hidden=false;tz.textContent=L.tz(off>0?"+"+off:off)}else tz.hidden=true;
+  renderBoard();renderReply();tick();
+}
+function renderBoard(){
+  const k=hourKey(),done=log[k]||[];const box=$("plats");box.innerHTML="";
+  PL.forEach(p=>{const b=document.createElement("button");b.className="plat";b.id="pl-"+p;b.setAttribute("aria-pressed",done.includes(p));
+    b.innerHTML=`<span></span><span class="mk">${done.includes(p)?"✓":"—"}</span>`;b.firstChild.textContent=p;
+    b.onclick=()=>toggle(p);box.appendChild(b)});
+  $("hcount").textContent=done.length;
+  let total=0;for(const key in log)total+=log[key].length;$("tcount").textContent=total;
+  const sel=$("plat");if(!sel.options.length)PL.forEach(p=>sel.add(new Option(p,p)));
+}
+function toggle(p,force){
+  const k=hourKey();const s=new Set(log[k]||[]);
+  if(force===true||!s.has(p))s.add(p);else s.delete(p);
+  log[k]=[...s];if(!log[k].length)delete log[k];ls.set("st_log",log);renderBoard();
+}
+let lastHour=hourKey();
+function tick(){
+  const d=kst();$("kst").textContent=`${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+  const left=59*60-(d.getUTCMinutes()*60+d.getUTCSeconds());const cd=$("cd");
+  if(left>0){cd.textContent=`${pad(Math.floor(left/60))}:${pad(left%60)}`}else{cd.textContent="00:00"}
+  cd.className="big cd"+(left<=0?" bad":left<=300?" warn":"");
+  const now=Date.now(),L=T[lang];$("evstatus").textContent=now<EV_START?L.before:now>EV_END?L.after:L.during;
+  if(hourKey()!==lastHour){lastHour=hourKey();renderBoard()}
+}
+setInterval(tick,1000);
+
+// settings
+$("xid").value=ls.get("st_xid","");$("post").value=ls.get("st_post","");
+function postId(){const m=($("post").value||"").match(/status\/(\d+)/);return m?m[1]:null}
+function renderReply(){
+  const L=T[lang];const id=$("xid").value.trim().replace(/^@/,"");
+  const txt=`${$("plat").value||PL[0]} 「Star Trace」 ${($("date").value||kstDate()).replace(/-/g,".")}\n${TAGS}`;
+  $("rtext").textContent=txt;
+  const pid=postId();const a=$("intent");
+  a.href="https://x.com/intent/post?text="+encodeURIComponent(txt)+(pid?"&in_reply_to="+pid:"");
+  $("posthint").textContent=pid?L.postok:L.nopost;$("posthint").className="hint"+(pid?" done-ok":"");
+}
+$("xid").addEventListener("input",()=>{ls.set("st_xid",$("xid").value.trim().replace(/^@/,""));draw();renderReply()});
+$("post").addEventListener("input",()=>{ls.set("st_post",$("post").value.trim());renderReply()});
+$("plat").addEventListener("change",renderReply);
+$("date").value=kstDate();
+$("date").addEventListener("change",()=>{draw();renderReply()});
+$("pos").addEventListener("input",draw);
+
+// image maker
+const imgs=[null,null];
+function load(i){
+  const f=$("f"+(i+1)).files[0];if(!f)return;const url=URL.createObjectURL(f);const im=new Image();
+  im.onload=()=>{imgs[i]=im;const p=$("p"+(i+1));p.src=url;p.hidden=false;draw()};im.src=url;
+}
+$("f1").addEventListener("change",()=>load(0));$("f2").addEventListener("change",()=>load(1));
+let outBlob=null;
+function draw(){
+  if(!imgs[0]||!imgs[1])return;
+  const id=$("xid").value.trim().replace(/^@/,"");
+  if(!id){toast(T[lang].noid);return}
+  const h=Math.min(imgs[0].naturalHeight,imgs[1].naturalHeight,2400);
+  const w0=Math.round(imgs[0].naturalWidth*h/imgs[0].naturalHeight),w1=Math.round(imgs[1].naturalWidth*h/imgs[1].naturalHeight);
+  const cv=$("cv");cv.width=w0+w1;cv.height=h;const c=cv.getContext("2d");
+  c.drawImage(imgs[0],0,0,w0,h);c.drawImage(imgs[1],w0,0,w1,h);
+  const text=`${id} / ${$("date").value.replace(/-/g,".")}`;
+  let fs=Math.round(cv.width*0.045);c.font=`800 ${fs}px "IBM Plex Sans",system-ui,sans-serif`;
+  while(c.measureText(text).width>cv.width*0.9&&fs>10){fs--;c.font=`800 ${fs}px "IBM Plex Sans",system-ui,sans-serif`}
+  const y=h*($("pos").value/100);c.textAlign="center";c.textBaseline="middle";
+  c.lineJoin="round";c.lineWidth=Math.max(3,fs*0.18);c.strokeStyle="#000";c.strokeText(text,cv.width/2,y);
+  c.fillStyle="#fff";c.fillText(text,cv.width/2,y);
+  cv.toBlob(b=>{outBlob=b;const o=$("out");if(o.src)URL.revokeObjectURL(o.src);o.src=URL.createObjectURL(b);o.hidden=false;$("savehint").hidden=false;$("outbtns").hidden=false},"image/png");
+}
+$("dlimg").onclick=async()=>{
+  const L=T[lang];if(!outBlob)return toast(L.need2);
+  const d=kst();const name=`StarTrace_${$("plat").value}_${$("date").value.replace(/-/g,"")}_${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}.png`;
+  let dl=null;
+  if(window.claude&&window.claude.use){try{dl=await window.claude.use("downloads")}catch(e){dl=null}}
+  if(dl){
+    try{await dl.save({filename:name,data:outBlob});toast(L.saved)}
+    catch(e){if(e&&e.code!=="declined")toast(L.save)}
+    return;
+  }
+  if(window.self!==window.top){toast(L.save);return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(outBlob);a.download=name;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast(L.saved);
+};
+$("markdone").onclick=()=>{const p=$("plat").value;toggle(p,true);toast(T[lang].marked(p))};
+$("copytxt").onclick=()=>{
+  const t=$("rtext").textContent;
+  try{navigator.clipboard.writeText(t).then(()=>toast(T[lang].copied),sel)}catch(e){sel()}
+  function sel(){const r=document.createRange();r.selectNodeContents($("rtext"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast(T[lang].copyfail)}
+};
+document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>{lang=b.dataset.l;ls.set("st_lang",lang);applyLang()});
+applyLang();
+</script>
+
+</body>
+</html>
