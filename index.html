@@ -45,6 +45,9 @@ label{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap
 input[type=text],input[type=url],input[type=date],select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;box-sizing:border-box}
 input:focus-visible,button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2>*{min-width:0}
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:2.6em;line-height:1.3}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
 @media (max-width:460px){.grid2{grid-template-columns:1fr}}
 .plats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 @media (max-width:420px){.plats{grid-template-columns:repeat(3,1fr)}}
@@ -133,9 +136,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
     <pre id="rtext"></pre>
     <div class="btns">
       <button class="btn" id="copytxt" data-i="copytxt"></button>
-      <a class="btn ghost" id="intent" target="_blank" rel="noopener" data-i="openx"></a>
+      <a class="btn ghost" id="intent" target="_blank" rel="noopener"></a>
     </div>
-    <p class="hint" data-i="replyhint"></p>
+    <p class="hint" id="replyhint"></p>
   </section>
 
   <section>
@@ -160,8 +163,8 @@ const T={
 zh:{sub:"PLAVE《HYPERDRIVE》串流活動 認證助手（非官方）",deadline:"本小時上傳期限（:59 前）",setup:"基本設定",xid:"你的 X ID（不含 @）",firstpost:"主貼文網址（發了第一篇之後貼上）",
 board:"本小時認證進度",boardhint:"每個平台每小時只算 1 次。上傳完成後點一下平台做記號，換小時會自動歸零。",thishour:"本小時",total:"活動累計",
 maker:"認證圖產生器",startshot:"① 開始截圖（播放 10 秒內）",endshot:"② 結束截圖（結束前 10 秒內）",platform:"平台",date:"串流日期",pos:"文字高度位置（不要擋到上方時間和下方進度條）",
-save:"按「下載圖片」存檔。如果下載不了，手機可以長按上面的圖片儲存，電腦按右鍵另存。",dlimg:"下載圖片",saved:"已下載",markdone:"這個平台本小時已上傳 ✓",reply:"回覆用文字",copytxt:"複製文字",openx:"在 X 開啟回覆",
-replyhint:"「在 X 開啟回覆」會打開回覆主貼文的畫面並帶入文字，圖片需要自己附上。",form:"Google 表單（只交一次）",
+save:"按「下載圖片」存檔。如果下載不了，手機可以長按上面的圖片儲存，電腦按右鍵另存。",dlimg:"下載圖片",saved:"已下載",markdone:"這個平台本小時已上傳 ✓",reply:"回覆用文字",copytxt:"複製文字",openx:"在 X 回覆主貼文",openfirst:"在 X 發第一篇",
+replyhint:"會打開回覆主貼文的畫面並帶入文字，圖片需要自己附上。",firsthint:"還沒有主貼文：按「在 X 發第一篇」會開新貼文並帶入文字，附上圖片發出後，從貼文的分享選單「複製連結」，貼到上方「主貼文網址」。之後按鈕就會變成回覆主貼文。",form:"Google 表單（只交一次）",
 formhint:"只需要提交「主貼文」的連結，提交後不能修改。真名（韓文或英文）也不能改，送出前務必確認。",rules:"容易出錯的地方",
 privacy:"截圖只在你的瀏覽器裡處理，不會上傳到任何地方。本工具為粉絲自製，與官方無關。",
 r:["帳號不能是私密帳號","圖上一定要有 X ID，沒有就不算","活動結束後到抽獎完成前，不要刪貼文","抽獎前不要改 X ID","不要修改截圖內容（加 ID 和日期以外的加工都可能被判定竄改）","中獎通知後 7 天內要回覆","所有時間以 KST（韓國時間）為準"],
@@ -171,8 +174,8 @@ noid:"請先填 X ID",nopost:"填入主貼文網址後，就能直接開啟回�
 ja:{sub:"PLAVE『HYPERDRIVE』ストリーミングイベント 認証アシスタント（非公式）",deadline:"この時間帯の投稿期限（:59まで）",setup:"基本設定",xid:"あなたの X ID（@なし）",firstpost:"最初の投稿のURL（投稿後に貼り付け）",
 board:"この時間帯の認証状況",boardhint:"各音源サイトは1時間に1回のみ反映。投稿したらサイトをタップして記録。時間が変わると自動リセット。",thishour:"この時間",total:"累計",
 maker:"認証画像メーカー",startshot:"① 開始時キャプチャ（再生10秒以内）",endshot:"② 終了時キャプチャ（終了前10秒以内）",platform:"音源サイト",date:"ストリーミング日付",pos:"文字の高さ（上部の時刻と再生バーに重ねない）",
-save:"「画像をダウンロード」で保存。できない場合、スマホは上の画像を長押し、PCは右クリックで保存してください。",dlimg:"画像をダウンロード",saved:"ダウンロードしました",markdone:"このサイトはこの時間投稿済み ✓",reply:"返信用テキスト",copytxt:"テキストをコピー",openx:"Xで返信を開く",
-replyhint:"「Xで返信を開く」で最初の投稿への返信画面がテキスト入りで開きます。画像はご自身で添付してください。",form:"Googleフォーム（1回のみ）",
+save:"「画像をダウンロード」で保存。できない場合、スマホは上の画像を長押し、PCは右クリックで保存してください。",dlimg:"画像をダウンロード",saved:"ダウンロードしました",markdone:"このサイトはこの時間投稿済み ✓",reply:"返信用テキスト",copytxt:"テキストをコピー",openx:"Xで最初の投稿に返信",openfirst:"Xで最初の投稿をする",
+replyhint:"最初の投稿への返信画面がテキスト入りで開きます。画像はご自身で添付してください。",firsthint:"最初の投稿がまだの場合：「Xで最初の投稿をする」で新規投稿画面がテキスト入りで開きます。画像を添付して投稿したら、共有メニューの「リンクをコピー」で上の「最初の投稿のURL」に貼り付けてください。以降はボタンが返信用に切り替わります。",form:"Googleフォーム（1回のみ）",
 formhint:"提出するのは最初の投稿のリンクだけ。提出後は修正不可。実名（ハングル/英語）も変更できないので、送信前に必ず確認。",rules:"注意ポイント",
 privacy:"画像はブラウザ内だけで処理され、どこにもアップロードされません。ファン有志のツールで公式とは無関係です。",
 r:["非公開アカウントは参加不可","画像にX IDがないと無効","イベント終了後も当選発表まで投稿を削除しない","当選発表までX IDを変更しない","画像を加工・改ざんしない（ID・日付の記入以外）","当選連絡から7日以内に返信","時間はすべてKST基準"],
@@ -182,8 +185,8 @@ noid:"先にX IDを入力してください",nopost:"最初の投稿URLを入れ
 ko:{sub:"PLAVE 'HYPERDRIVE' 스트리밍 이벤트 인증 도우미 (비공식)",deadline:"이번 시간 업로드 마감 (:59까지)",setup:"기본 설정",xid:"내 X 아이디 (@ 제외)",firstpost:"첫 게시물 URL (게시 후 붙여넣기)",
 board:"이번 시간 인증 현황",boardhint:"음원 사이트별 1시간에 1회만 반영. 업로드 후 사이트를 눌러 체크하면 정각에 자동 초기화돼요.",thishour:"이번 시간",total:"누적",
 maker:"인증 이미지 만들기",startshot:"① 시작 캡처 (재생 10초 이내)",endshot:"② 종료 캡처 (종료 10초 전 이내)",platform:"음원 사이트",date:"스트리밍 날짜",pos:"글자 높이 (상단 시각·재생바를 가리지 않게)",
-save:"'이미지 다운로드'로 저장하세요. 안 되면 휴대폰은 위 이미지를 길게 눌러, PC는 우클릭으로 저장하세요.",dlimg:"이미지 다운로드",saved:"다운로드했어요",markdone:"이 사이트 이번 시간 업로드 완료 ✓",reply:"답글용 텍스트",copytxt:"텍스트 복사",openx:"X에서 답글 열기",
-replyhint:"'X에서 답글 열기'를 누르면 첫 게시물 답글 화면이 텍스트와 함께 열려요. 이미지는 직접 첨부하세요.",form:"구글폼 (1회만)",
+save:"'이미지 다운로드'로 저장하세요. 안 되면 휴대폰은 위 이미지를 길게 눌러, PC는 우클릭으로 저장하세요.",dlimg:"이미지 다운로드",saved:"다운로드했어요",markdone:"이 사이트 이번 시간 업로드 완료 ✓",reply:"답글용 텍스트",copytxt:"텍스트 복사",openx:"X에서 첫 게시물에 답글",openfirst:"X에서 첫 게시물 올리기",
+replyhint:"첫 게시물 답글 화면이 텍스트와 함께 열려요. 이미지는 직접 첨부하세요.",firsthint:"아직 첫 게시물이 없다면: 'X에서 첫 게시물 올리기'를 누르면 새 게시물 화면이 텍스트와 함께 열려요. 이미지를 첨부해 올린 뒤 공유 메뉴의 '링크 복사'로 위 '첫 게시물 URL'에 붙여넣으세요. 그다음부터 버튼이 답글용으로 바뀌어요.",form:"구글폼 (1회만)",
 formhint:"첫 게시물 링크만 제출하면 되고, 제출 후 수정 불가. 실명(한글/영문)도 바꿀 수 없으니 꼭 확인하세요.",rules:"주의할 점",
 privacy:"이미지는 브라우저 안에서만 처리되며 어디에도 업로드되지 않아요. 팬이 만든 비공식 도구입니다.",
 r:["비공개 계정은 참여 불가","인증 이미지에 X 아이디가 없으면 무효","이벤트 종료 후 당첨자 선정까지 게시물 삭제 금지","당첨 발표 전 X 아이디 변경 금지","이미지 편집·조작 금지 (아이디·날짜 기입 외)","당첨 안내 후 7일 내 회신","모든 시간은 KST 기준"],
@@ -193,8 +196,8 @@ noid:"먼저 X 아이디를 입력하세요",nopost:"첫 게시물 URL을 넣으
 en:{sub:"PLAVE 'HYPERDRIVE' streaming event proof helper (unofficial)",deadline:"Upload deadline this hour (by :59)",setup:"Setup",xid:"Your X ID (without @)",firstpost:"First post URL (paste after posting)",
 board:"This hour's progress",boardhint:"Each platform counts once per hour. Tap a platform after you upload; it resets automatically on the hour.",thishour:"This hour",total:"Total",
 maker:"Proof image maker",startshot:"① Start screenshot (within 10s of start)",endshot:"② End screenshot (within last 10s)",platform:"Platform",date:"Streaming date",pos:"Text height (keep clear of the clock and progress bar)",
-save:"Tap \"Download image\" to save. If that fails, long-press the image on mobile or right-click on PC.",dlimg:"Download image",saved:"Downloaded",markdone:"Uploaded for this platform this hour ✓",reply:"Reply text",copytxt:"Copy text",openx:"Open reply on X",
-replyhint:"\"Open reply on X\" opens a reply to your first post with the text filled in. Attach the image yourself.",form:"Google Form (submit once)",
+save:"Tap \"Download image\" to save. If that fails, long-press the image on mobile or right-click on PC.",dlimg:"Download image",saved:"Downloaded",markdone:"Uploaded for this platform this hour ✓",reply:"Reply text",copytxt:"Copy text",openx:"Reply to first post on X",openfirst:"Make your first post on X",
+replyhint:"Opens a reply to your first post with the text filled in. Attach the image yourself.",firsthint:"No first post yet: this button opens a new post with the text filled in. Attach the image and post it, then use Share → Copy link and paste it into \"First post URL\" above. After that the button switches to replying.",form:"Google Form (submit once)",
 formhint:"Submit only your first post's link. It can't be edited after submitting, and neither can your real name (Korean or English), so double-check first.",rules:"Common mistakes",
 privacy:"Images are processed in your browser only and never uploaded. Fan-made tool, not affiliated with VLAST.",
 r:["Private accounts can't participate","Images without your X ID don't count","Don't delete posts until winners are chosen","Don't change your X ID before winners are announced","Don't edit the screenshots (anything beyond adding ID and date may count as tampering)","Reply within 7 days of the winner notice","All times are KST"],
@@ -255,6 +258,7 @@ function renderReply(){
   $("rtext").textContent=txt;
   const pid=postId();const a=$("intent");
   a.href="https://x.com/intent/post?text="+encodeURIComponent(txt)+(pid?"&in_reply_to="+pid:"");
+  a.textContent=pid?L.openx:L.openfirst;$("replyhint").textContent=pid?L.replyhint:L.firsthint;
   $("posthint").textContent=pid?L.postok:L.nopost;$("posthint").className="hint"+(pid?" done-ok":"");
 }
 $("xid").addEventListener("input",()=>{ls.set("st_xid",$("xid").value.trim().replace(/^@/,""));draw();renderReply()});
