@@ -6,11 +6,11 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>Star Trace 串流認證助手</title>
+<title>HYPERDRIVE 認證助手</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=IBM+Plex+Sans:wght@400;600&display=swap">
 <style>
-/* Layout: one narrow "pit board" column — clock strip on top, then image maker, reply text, rules */
+/* Layout: one narrow "pit board" column — event tabs, clock strip, then per-event setup, image maker, post text, rules */
 :root{
   --bg:#EEF1F6; --panel:#FFFFFF; --ink:#111733; --muted:#5B6382; --line:#D7DCE8;
   --accent:#2B4EF0; --accent-ink:#FFFFFF; --done:#11845B; --warn:#C27A00; --bad:#C3313F;
@@ -25,10 +25,10 @@
   --accent:#7C93FF; --accent-ink:#0C1022; --done:#3CC48E; --warn:#F2B13A; --bad:#FF6B78; color-scheme:dark}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
 .wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:16px 48px;display:flex;flex-direction:column;gap:16px}
-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+header{display:flex;flex-direction:column;gap:8px}
 h1{font-family:var(--f-display);font-weight:800;font-size:1.9rem;letter-spacing:.02em;margin:0;line-height:1.1;text-wrap:balance}
 h1 small{display:block;font-family:var(--f-body);font-size:.8rem;font-weight:400;color:var(--muted);letter-spacing:0}
-.lang{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.lang{display:flex;align-self:flex-end;order:-1;border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .lang button{border:0;background:transparent;color:var(--muted);padding:6px 10px;font:inherit;font-size:.85rem;cursor:pointer}
 .lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
@@ -55,8 +55,7 @@ input[type=date]::-webkit-date-and-time-value{text-align:left}
 .drop{border:1.5px dashed var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:0}
 .drop img{border-radius:6px;max-height:160px;object-fit:contain;background:var(--bg)}
 .drop span{font-size:.8rem;color:var(--muted)}
-canvas{display:none}
-#out{width:100%;border-radius:8px;border:1px solid var(--line)}
+#out,#lout{width:100%;border-radius:8px;border:1px solid var(--line)}
 .hint{font-size:.82rem;color:var(--muted);margin:0}
 pre{white-space:pre-wrap;word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;margin:0;font:inherit;font-size:.9rem}
 ul.rules{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.9rem}
@@ -64,26 +63,42 @@ ul.rules li::marker{color:var(--accent)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.9rem}
 input[type=range]{width:100%;accent-color:var(--accent)}
 .done-ok{color:var(--done);font-weight:600}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;padding:8px 6px;border-radius:7px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.tabpanel{display:flex;flex-direction:column;gap:16px}
+.alert{margin:0;font-size:.78rem;font-weight:600;color:var(--bad)}
+.chk{display:flex;flex-direction:column;gap:6px;margin:0;padding:10px;border-radius:8px;background:var(--bg);border:1px solid var(--line)}
+.chk p{margin:0;font-size:.85rem;color:var(--muted)}
+.chk label{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:.92rem;cursor:pointer}
+.chk input{width:18px;height:18px;margin:0;accent-color:var(--done)}
+.chk.ok{border-color:var(--done)}
+.chk.ok p{color:var(--done);font-weight:600}
 </style>
 
 <div class="wrap">
   <header>
-    <h1>STAR TRACE <span style="color:var(--accent)">STREAMING</span>
-      <small data-i="sub"></small></h1>
+    <h1><span id="h1a">STAR TRACE</span> <span id="h1b" style="color:var(--accent)">STREAMING</span>
+      <small id="sub"></small></h1>
     <div class="lang" role="group" aria-label="Language">
       <button id="l-zh" data-l="zh">繁中</button><button id="l-ja" data-l="ja">日本語</button><button id="l-ko" data-l="ko">한국어</button><button id="l-en" data-l="en">EN</button>
     </div>
   </header>
 
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-st-btn" data-tab="st" data-i="tabst"></button><button role="tab" id="tab-lp-btn" data-tab="lp" data-i="tablp"></button>
+  </nav>
+
   <section class="clock" aria-live="polite">
     <div class="row">
       <div><div class="lbl">KST</div><div class="big" id="kst">--:--:--</div></div>
-      <div><div class="lbl" data-i="deadline"></div><div class="big cd" id="cd">--:--</div></div>
+      <div><div class="lbl" id="deadline"></div><div class="big cd" id="cd">--:--</div></div>
     </div>
     <div class="status" id="evstatus"></div>
     <div class="tznote" id="tznote" hidden></div>
   </section>
 
+  <div class="tabpanel" id="tab-st">
   <section>
     <h2 data-i="setup"></h2>
     <div class="grid2">
@@ -105,7 +120,6 @@ input[type=range]{width:100%;accent-color:var(--accent)}
     </div>
     <label><span data-i="pos"></span><input type="range" id="pos" min="15" max="85" value="52"></label>
     <label><span data-i="wm"></span><input type="range" id="wm" min="0" max="40" value="15"></label>
-    <canvas id="cv"></canvas>
     <img id="out" alt="" hidden>
     <p class="hint" id="savehint" hidden data-i="save"></p>
   </section>
@@ -130,6 +144,42 @@ input[type=range]{width:100%;accent-color:var(--accent)}
     <h2 data-i="rules"></h2>
     <ul class="rules" id="rules"></ul>
   </section>
+  </div>
+
+  <div class="tabpanel" id="tab-lp" hidden>
+  <section>
+    <h2 data-i="setup"></h2>
+    <label><span data-i="wvnick"></span><input type="text" id="wvnick" autocomplete="off"></label>
+    <p class="alert" data-i="lpmail"></p>
+    <label><span data-i="lpround"></span><select id="lpn"></select></label>
+    <p class="hint" data-i="lpvary"></p>
+  </section>
+
+  <section>
+    <h2 data-i="maker"></h2>
+    <div class="drop"><span data-i="lpshot"></span><input type="file" id="lf" accept="image/*"><img id="lp1" alt="" hidden></div>
+    <div class="chk" id="lpchk"><p data-i="lpchk"></p></div>
+    <label><span data-i="lppos"></span><input type="range" id="lpos" min="5" max="95" value="50"></label>
+    <label><span data-i="wm"></span><input type="range" id="lwm" min="0" max="40" value="15"></label>
+    <img id="lout" alt="" hidden>
+    <p class="hint" id="lsavehint" hidden data-i="lpsave"></p>
+  </section>
+
+  <section>
+    <h2 data-i="lppost"></h2>
+    <pre id="ltext"></pre>
+    <div class="btns">
+      <button class="btn" id="lcopy" data-i="copytxt"></button>
+      <a class="btn ghost" href="https://weverse.io/plave/feed" target="_blank" rel="noopener" data-i="lpopen"></a>
+    </div>
+    <p class="hint" data-i="lphint"></p>
+  </section>
+
+  <section>
+    <h2 data-i="rules"></h2>
+    <ul class="rules" id="lrules"></ul>
+  </section>
+  </div>
   <p class="hint" data-i="privacy"></p>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -138,8 +188,17 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 const PL=["Melon","genie","Bugs","FLO","Spotify"];
 const TAGS="#PLAVE_StarTrace_STREAMING #HYPERDRIVE";
 const EV_START=Date.UTC(2026,9,12,9,0,0), EV_END=Date.UTC(2026,9,18,14,59,59); // 18:00–23:59:59 KST
+// Listening Party rounds (start times in UTC = KST-9); posting closes 23:59 KST on each round's day
+const LP_START=[Date.UTC(2026,9,14,7,30),Date.UTC(2026,9,15,11,0),Date.UTC(2026,9,19,9,40),Date.UTC(2026,9,21,10,0)];
 const T={
-zh:{sub:"PLAVE《HYPERDRIVE》串流活動 認證助手（非官方）",deadline:"本小時上傳期限（:59 前）",setup:"基本設定",xid:"你的 X ID（不含 @）",firstpost:"主貼文網址（發了第一篇之後貼上）",
+zh:{tabst:"串流認證",tablp:"Listening Party",lpdeadline:"本回發文期限（當天 23:59）",
+wvnick:"你的 Weverse 暱稱（PLAVE 社群）",lpmail:"⚠ Weverse 帳號必須能正常收發 email。用了「隱藏 email」之類功能、收不到信的帳號，可能不會被抽中或被取消中獎。",lpround:"參加回次",lpvary:"※ 時間可能依現場進行狀況變動",
+lpshot:"Listening Party 截圖",lpchk:"截圖裡要同時看得到：",lpc:["串流連動狀態", "自己發的聊天訊息", "上方的參與時間"],lppos:"文字高度位置（不要擋到聊天和上方時間）",
+lpsave:"長按上面的圖片選「加入照片」存到相簿，在 Weverse 發文時從相簿選（電腦按右鍵另存）。",lppost:"Weverse 發文用 hashtag",lpopen:"開啟 PLAVE Weverse",
+lphint:"流程：存圖 →「複製文字」→「開啟 PLAVE Weverse」到社群發文，附上圖片、貼上 hashtag。hashtag 的數字要跟參加回次一樣。",lpnonick:"請先填 Weverse 暱稱",
+round:n=>`第 ${n} 回`,lpbefore:(n,t)=>`第 ${n} 回 今天 ${t} 開始`,lpduring:n=>`第 ${n} 回 進行中・今天 23:59 前要發文`,lpnext:(n,d)=>`下一回：第 ${n} 回 ${d}`,lpafter:"所有回次已結束",
+lpr:["只算 PLAVE 官方 Weverse 帳號主辦的 Listening Party","要先連動 Spotify、Apple Music、Melon 其中一個，再發聊天訊息","截圖要同時看得到：串流連動狀態、自己發的聊天、上方的參與時間","圖上一定要寫 Weverse 暱稱和參加日期，沒寫暱稱不算","hashtag #HYPERDRIVE_Party_n 的 n 要填參加的回次","要在該回次當天 23:59（KST）前發文","參加後不要改 Weverse 暱稱","不要修改截圖（寫暱稱和日期以外的加工可能被判定竄改）","中獎公告後 7 天內要回覆"],
+sub:"PLAVE《HYPERDRIVE》活動認證助手（非官方）",deadline:"本小時上傳期限（:59 前）",setup:"基本設定",xid:"你的 X ID（不含 @）",firstpost:"主貼文網址（發了第一篇之後貼上）",
 
 maker:"認證圖產生器",wm:"整面水印濃度（拉到最左關閉）",startshot:"① 開始截圖（播放 10 秒內）",endshot:"② 結束截圖（結束前 10 秒內）",platform:"平台",date:"串流日期",pos:"文字高度位置（不要擋到上方時間和下方進度條）",
 save:"長按上面的圖片選「拷貝」，到 X 的回覆裡貼上就會附上圖片（電腦按右鍵「複製圖片」）。",reply:"回覆用文字",copytxt:"複製文字",openx:"開啟主貼文",needpost:"分享到 X 發第一篇",
@@ -150,7 +209,14 @@ r:["帳號不能是私密帳號","圖上一定要有 X ID，沒有就不算","�
 before:"活動尚未開始（10/12 18:00 KST 開始）",during:"活動進行中（至 10/18 23:59 KST）",after:"活動已結束",
 tz:o=>`你的裝置時區和 KST 相差 ${o} 小時。截圖上的手機時間會是當地時間，但上傳期限以 KST 為準。`,
 noid:"請先填 X ID",nopost:"填入主貼文網址後，就能直接開啟主貼文。",postok:"已讀到主貼文 ✓",copied:"已複製",copyfail:"無法自動複製，請長按選取",need2:"請選兩張截圖",noshare:"這個瀏覽器不支援分享，請長按圖片拷貝後自己到 X 發文"},
-ja:{sub:"PLAVE『HYPERDRIVE』ストリーミングイベント 認証アシスタント（非公式）",deadline:"この時間帯の投稿期限（:59まで）",setup:"基本設定",xid:"あなたの X ID（@なし）",firstpost:"最初の投稿のURL（投稿後に貼り付け）",
+ja:{tabst:"ストリーミング認証",tablp:"リスニングパーティー",lpdeadline:"今回の投稿期限（当日23:59）",
+wvnick:"Weverseのニックネーム（PLAVEコミュニティ）",lpmail:"⚠ メールを送受信できるWeverseアカウントで参加してください。メール非公開（Hide My Emailなど）でメールが届かない場合、当選対象外または当選取消になることがあります。",lpround:"参加回",lpvary:"※ 進行状況により日程が変わる場合があります",
+lpshot:"リスニングパーティーのキャプチャ",lpchk:"キャプチャにすべて写っているか確認：",lpc:["ストリーミング連携状態", "自分が送ったチャット", "上部の参加時間"],lppos:"文字の高さ（チャットや上部の時間に重ねない）",
+lpsave:"上の画像を長押しして「\"写真\"に保存」し、Weverseの投稿で写真から選んでください（PCは右クリックで保存）。",lppost:"Weverse投稿用ハッシュタグ",lpopen:"PLAVEのWeverseを開く",
+lphint:"手順：画像を保存 →「テキストをコピー」→「PLAVEのWeverseを開く」でコミュニティに投稿し、画像を添付してハッシュタグを貼り付け。ハッシュタグの数字は参加回と同じにしてください。",lpnonick:"先にWeverseのニックネームを入力してください",
+round:n=>`第${n}回`,lpbefore:(n,t)=>`第${n}回は本日 ${t} 開始`,lpduring:n=>`第${n}回 開催中・本日23:59までに投稿`,lpnext:(n,d)=>`次回：第${n}回 ${d}`,lpafter:"全回終了しました",
+lpr:["PLAVE公式Weverseアカウント主催のリスニングパーティーのみ対象","Spotify・Apple Music・Melonのいずれかを連携してからチャットを送信","キャプチャにはストリーミング連携状態・自分のチャット・上部の参加時間がすべて必要","画像にWeverseニックネームと参加日を記入（ニックネームがないと無効）","ハッシュタグ #HYPERDRIVE_Party_n の n は参加回の数字","各回当日の23:59（KST）までに投稿","応募後はWeverseニックネームを変更しない","画像を加工・改ざんしない（ニックネーム・日付の記入以外）","当選発表から7日以内に返信"],
+sub:"PLAVE『HYPERDRIVE』イベント認証アシスタント（非公式）",deadline:"この時間帯の投稿期限（:59まで）",setup:"基本設定",xid:"あなたの X ID（@なし）",firstpost:"最初の投稿のURL（投稿後に貼り付け）",
 
 maker:"認証画像メーカー",wm:"全面透かしの濃さ（左端でオフ）",startshot:"① 開始時キャプチャ（再生10秒以内）",endshot:"② 終了時キャプチャ（終了前10秒以内）",platform:"音源サイト",date:"ストリーミング日付",pos:"文字の高さ（上部の時刻と再生バーに重ねない）",
 save:"上の画像を長押しして「コピー」し、Xの返信に貼り付けると画像が添付されます（PCは右クリック→画像をコピー）。",reply:"返信用テキスト",copytxt:"テキストをコピー",openx:"最初の投稿を開く",needpost:"最初の投稿をXに共有",
@@ -161,7 +227,14 @@ r:["非公開アカウントは参加不可","画像にX IDがないと無効","
 before:"イベント開始前（10/12 18:00 KST開始）",during:"イベント開催中（10/18 23:59 KSTまで）",after:"イベントは終了しました",
 tz:o=>`端末のタイムゾーンはKSTと${o}時間ずれています。スクショの時刻は現地時間ですが、投稿期限はKST基準です。`,
 noid:"先にX IDを入力してください",nopost:"最初の投稿のURLを入れると、最初の投稿を直接開けます。",postok:"最初の投稿を確認 ✓",copied:"コピーしました",copyfail:"コピーできませんでした。長押しで選択してください",need2:"キャプチャを2枚選んでください",noshare:"このブラウザは共有に対応していません。画像を長押しでコピーしてXで投稿してください"},
-ko:{sub:"PLAVE 'HYPERDRIVE' 스트리밍 이벤트 인증 도우미 (비공식)",deadline:"이번 시간 업로드 마감 (:59까지)",setup:"기본 설정",xid:"내 X 아이디 (@ 제외)",firstpost:"첫 게시물 URL (게시 후 붙여넣기)",
+ko:{tabst:"스트리밍 인증",tablp:"리스닝 파티",lpdeadline:"이번 회차 게시 마감 (당일 23:59)",
+wvnick:"내 Weverse 닉네임 (PLAVE 커뮤니티)",lpmail:"⚠ 이메일 수신/발신이 가능한 Weverse 계정으로 참여하세요. 이메일 가리기 등으로 메일을 받을 수 없으면 당첨자 선정에서 제외되거나 당첨이 취소될 수 있어요.",lpround:"참여 회차",lpvary:"※ 진행 상황에 따라 일정이 변동될 수 있어요",
+lpshot:"리스닝 파티 캡처",lpchk:"캡처에 모두 보이는지 확인:",lpc:["스트리밍 연동 여부", "내가 작성한 채팅", "상단 참여 시간"],lppos:"글자 높이 (채팅과 상단 시간을 가리지 않게)",
+lpsave:"위 이미지를 길게 눌러 '사진 앱에 저장'한 뒤 Weverse 글쓰기에서 사진을 첨부하세요 (PC는 우클릭으로 저장).",lppost:"Weverse 게시용 해시태그",lpopen:"PLAVE Weverse 열기",
+lphint:"순서: 이미지 저장 → '텍스트 복사' → 'PLAVE Weverse 열기'에서 커뮤니티에 글쓰기, 이미지 첨부 후 해시태그 붙여넣기. 해시태그 숫자는 참여 회차와 같아야 해요.",lpnonick:"먼저 Weverse 닉네임을 입력하세요",
+round:n=>`${n}회차`,lpbefore:(n,t)=>`${n}회차 오늘 ${t} 시작`,lpduring:n=>`${n}회차 진행 중 · 오늘 23:59까지 게시`,lpnext:(n,d)=>`다음: ${n}회차 ${d}`,lpafter:"모든 회차가 종료되었어요",
+lpr:["PLAVE 공식 Weverse 계정이 주최한 리스닝 파티만 인정","Spotify·Apple Music·Melon 중 1개 이상 연동 후 채팅 작성","캡처에 스트리밍 연동 여부·내 채팅·상단 참여 시간이 모두 보여야 함","이미지에 Weverse 닉네임과 참여 날짜 기재 (닉네임 없으면 무효)","해시태그 #HYPERDRIVE_Party_n 의 n은 참여 회차 숫자","각 회차 당일 23:59 (KST)까지 게시","응모 후 Weverse 닉네임 변경 지양","이미지 편집·조작 금지 (닉네임·날짜 기재 외)","당첨 발표 후 7일 내 회신"],
+sub:"PLAVE 'HYPERDRIVE' 이벤트 인증 도우미 (비공식)",deadline:"이번 시간 업로드 마감 (:59까지)",setup:"기본 설정",xid:"내 X 아이디 (@ 제외)",firstpost:"첫 게시물 URL (게시 후 붙여넣기)",
 
 maker:"인증 이미지 만들기",wm:"전체 워터마크 농도 (맨 왼쪽 = 끄기)",startshot:"① 시작 캡처 (재생 10초 이내)",endshot:"② 종료 캡처 (종료 10초 전 이내)",platform:"음원 사이트",date:"스트리밍 날짜",pos:"글자 높이 (상단 시각·재생바를 가리지 않게)",
 save:"위 이미지를 길게 눌러 '복사'하고 X 답글에 붙여넣으면 이미지가 첨부돼요 (PC는 우클릭 → 이미지 복사).",reply:"답글용 텍스트",copytxt:"텍스트 복사",openx:"첫 게시물 열기",needpost:"첫 게시물 X에 공유하기",
@@ -172,7 +245,14 @@ r:["비공개 계정은 참여 불가","인증 이미지에 X 아이디가 없�
 before:"이벤트 시작 전 (10/12 18:00 KST 시작)",during:"이벤트 진행 중 (10/18 23:59 KST까지)",after:"이벤트가 종료되었어요",
 tz:o=>`기기 시간대가 KST와 ${o}시간 차이 나요. 캡처 속 시각은 현지 시간이지만 업로드 마감은 KST 기준이에요.`,
 noid:"먼저 X 아이디를 입력하세요",nopost:"첫 게시물 URL을 넣으면 첫 게시물을 바로 열 수 있어요.",postok:"첫 게시물 확인 ✓",copied:"복사했어요",copyfail:"복사할 수 없어요. 길게 눌러 선택하세요",need2:"캡처 두 장을 선택하세요",noshare:"이 브라우저는 공유를 지원하지 않아요. 이미지를 길게 눌러 복사한 뒤 X에서 직접 올려 주세요"},
-en:{sub:"PLAVE 'HYPERDRIVE' streaming event proof helper (unofficial)",deadline:"Upload deadline this hour (by :59)",setup:"Setup",xid:"Your X ID (without @)",firstpost:"First post URL (paste after posting)",
+en:{tabst:"Streaming",tablp:"Listening Party",lpdeadline:"Post deadline this round (23:59 that day)",
+wvnick:"Your Weverse nickname (PLAVE community)",lpmail:"⚠ Your Weverse account must be able to send and receive email. Accounts using Hide My Email or similar that can't receive mail may be excluded or have their win cancelled.",lpround:"Round",lpvary:"※ Times may change depending on how the party runs",
+lpshot:"Listening Party screenshot",lpchk:"Make sure the screenshot shows all of:",lpc:["Streaming link status", "Your own chat message", "Participation time at the top"],lppos:"Text height (keep clear of the chat and the time at the top)",
+lpsave:"Long-press the image above and tap Save to Photos, then attach it from Photos in your Weverse post (on PC: right-click → Save image).",lppost:"Hashtag for your Weverse post",lpopen:"Open PLAVE Weverse",
+lphint:"Steps: save the image → \"Copy text\" → \"Open PLAVE Weverse\" and post in the community, attaching the image and pasting the hashtag. The number in the hashtag must match your round.",lpnonick:"Enter your Weverse nickname first",
+round:n=>`Round ${n}`,lpbefore:(n,t)=>`Round ${n} starts today at ${t}`,lpduring:n=>`Round ${n} is live · post by 23:59 today`,lpnext:(n,d)=>`Next: Round ${n} ${d}`,lpafter:"All rounds have ended",
+lpr:["Only Listening Parties hosted by PLAVE's official Weverse account count","Link Spotify, Apple Music or Melon first, then send a chat message","The screenshot must show the streaming link status, your own chat and the participation time at the top","Write your Weverse nickname and participation date on the image (no nickname = invalid)","In #HYPERDRIVE_Party_n, n is your round number","Post by 23:59 (KST) on the day of that round","Don't change your Weverse nickname after entering","Don't edit the screenshot (anything beyond adding nickname and date may count as tampering)","Reply within 7 days of the winner announcement"],
+sub:"PLAVE 'HYPERDRIVE' event proof helper (unofficial)",deadline:"Upload deadline this hour (by :59)",setup:"Setup",xid:"Your X ID (without @)",firstpost:"First post URL (paste after posting)",
 
 maker:"Proof image maker",wm:"Full-image watermark strength (far left = off)",startshot:"① Start screenshot (within 10s of start)",endshot:"② End screenshot (within last 10s)",platform:"Platform",date:"Streaming date",pos:"Text height (keep clear of the clock and progress bar)",
 save:"Long-press the image above and tap Copy, then paste it into your X reply to attach it (on PC: right-click → Copy image).",reply:"Reply text",copytxt:"Copy text",openx:"Open first post",needpost:"Share to X as first post",
@@ -196,18 +276,38 @@ function applyLang(){
   const L=T[lang];document.documentElement.lang=lang==="zh"?"zh-Hant":lang;
   document.querySelectorAll("[data-i]").forEach(e=>{const v=L[e.dataset.i];if(typeof v==="string")e.textContent=v});
   document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===lang));
-  $("rules").innerHTML="";L.r.forEach(x=>{const li=document.createElement("li");li.textContent=x;$("rules").appendChild(li)});
+  [["rules",L.r],["lrules",L.lpr]].forEach(([id,list])=>{$(id).innerHTML="";list.forEach(x=>{const li=document.createElement("li");li.textContent=x;$(id).appendChild(li)})});
+  [...$("lpn").options].forEach((o,i)=>o.textContent=`${L.round(i+1)}  ${kstLabel(LP_START[i])}`);
+  $("lpchk").querySelectorAll("label span").forEach((e,i)=>e.textContent=L.lpc[i]);
   const off=-new Date().getTimezoneOffset()/60-9;const tz=$("tznote");
   if(off!==0){tz.hidden=false;tz.textContent=L.tz(off>0?"+"+off:off)}else tz.hidden=true;
-  renderReply();tick();
+  renderReply();renderLp();applyTab();
 }
 const sel=$("plat");PL.forEach(p=>sel.add(new Option(p,p)));{const last=ls.get("st_plat","");if(PL.includes(last))sel.value=last}
+const kstLabel=t=>{const d=new Date(t+9*3600e3);return `${d.getUTCMonth()+1}/${d.getUTCDate()} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`};
+const kstDay=t=>new Date(t+9*3600e3).toISOString().slice(0,10);
 function tick(){
   const d=kst();$("kst").textContent=`${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
-  const left=59*60-(d.getUTCMinutes()*60+d.getUTCSeconds());const cd=$("cd");
+  const now=Date.now(),L=T[lang],cd=$("cd");
+  if(tab==="lp"){
+    lpSync();
+    // Today's round (if any): before start → status only; after start → countdown to 23:59:59 KST
+    const i=LP_START.findIndex(t=>kstDay(t)===kstDate());
+    if(i>=0&&now>=LP_START[i]){
+      const left=Math.max(0,24*3600-1-(d.getUTCHours()*3600+d.getUTCMinutes()*60+d.getUTCSeconds()));
+      cd.textContent=`${Math.floor(left/3600)}:${pad(Math.floor(left/60)%60)}:${pad(left%60)}`;
+      cd.className="big cd"+(left<=0?" bad":left<=1800?" warn":"");$("evstatus").textContent=L.lpduring(i+1);
+    }else{
+      cd.textContent="--:--";cd.className="big cd";
+      const j=LP_START.findIndex(t=>t>now);
+      $("evstatus").textContent=i>=0?L.lpbefore(i+1,kstLabel(LP_START[i]).split(" ")[1]):j>=0?L.lpnext(j+1,kstLabel(LP_START[j])):L.lpafter;
+    }
+    return;
+  }
+  const left=59*60-(d.getUTCMinutes()*60+d.getUTCSeconds());
   if(left>0){cd.textContent=`${pad(Math.floor(left/60))}:${pad(left%60)}`}else{cd.textContent="00:00"}
   cd.className="big cd"+(left<=0?" bad":left<=300?" warn":"");
-  const now=Date.now(),L=T[lang];$("evstatus").textContent=now<EV_START?L.before:now>EV_END?L.after:L.during;
+  $("evstatus").textContent=now<EV_START?L.before:now>EV_END?L.after:L.during;
 }
 setInterval(tick,1000);
 
@@ -253,15 +353,19 @@ function draw(){
   if(!imgs[0]||!imgs[1])return;
   const id=$("xid").value.trim().replace(/^@/,"");
   if(!id){toast(T[lang].noid);return}
-  const h=Math.min(imgs[0].naturalHeight,imgs[1].naturalHeight,2400);
-  const w0=Math.round(imgs[0].naturalWidth*h/imgs[0].naturalHeight),w1=Math.round(imgs[1].naturalWidth*h/imgs[1].naturalHeight);
-  const cv=$("cv");cv.width=w0+w1;cv.height=h;const c=cv.getContext("2d");
-  c.drawImage(imgs[0],0,0,w0,h);c.drawImage(imgs[1],w0,0,w1,h);
-  const text=`${id} / ${$("date").value.replace(/-/g,".")}`;
-  let fs=Math.round(cv.width*0.045);c.font=`800 ${fs}px "IBM Plex Sans",system-ui,sans-serif`;
+  const cv=compose(imgs,`${id} / ${$("date").value.replace(/-/g,".")}`,$("pos").value,$("wm").value);
+  cv.toBlob(b=>{outBlob=b;const o=$("out");if(o.src)URL.revokeObjectURL(o.src);o.src=URL.createObjectURL(b);o.hidden=false;$("savehint").hidden=false},"image/png");
+}
+// Screenshots side by side at a common height, tiled watermark, then the main ID/date line
+function compose(list,text,posPct,wmPct){
+  const h=Math.min(...list.map(im=>im.naturalHeight),2400);
+  const ws=list.map(im=>Math.round(im.naturalWidth*h/im.naturalHeight));
+  const cv=document.createElement("canvas");cv.width=ws.reduce((a,b)=>a+b,0);cv.height=h;const c=cv.getContext("2d");
+  let x=0;list.forEach((im,i)=>{c.drawImage(im,x,0,ws[i],h);x+=ws[i]});
+  let fs=Math.round(cv.width/list.length*0.09);c.font=`800 ${fs}px "IBM Plex Sans",system-ui,sans-serif`;
   while(c.measureText(text).width>cv.width*0.9&&fs>10){fs--;c.font=`800 ${fs}px "IBM Plex Sans",system-ui,sans-serif`}
   // Tiled diagonal watermark, faint enough that the player text underneath stays readable
-  const wa=$("wm").value/100;
+  const wa=wmPct/100;
   if(wa>0){
     const wfs=Math.max(12,Math.round(fs*0.55));c.save();c.globalAlpha=wa;
     c.font=`600 ${wfs}px "IBM Plex Sans",system-ui,sans-serif`;c.textAlign="center";c.textBaseline="middle";
@@ -272,10 +376,10 @@ function draw(){
     c.restore();
   }
   c.font=`800 ${fs}px "IBM Plex Sans",system-ui,sans-serif`;
-  const y=h*($("pos").value/100);c.textAlign="center";c.textBaseline="middle";
+  const y=h*(posPct/100);c.textAlign="center";c.textBaseline="middle";
   c.lineJoin="round";c.lineWidth=Math.max(3,fs*0.18);c.strokeStyle="#000";c.strokeText(text,cv.width/2,y);
   c.fillStyle="#fff";c.fillText(text,cv.width/2,y);
-  cv.toBlob(b=>{outBlob=b;const o=$("out");if(o.src)URL.revokeObjectURL(o.src);o.src=URL.createObjectURL(b);o.hidden=false;$("savehint").hidden=false},"image/png");
+  return cv;
 }
 // No first post yet: share the image via the share sheet (X keeps the image, may drop text), so copy the text alongside
 $("openpost").addEventListener("click",e=>{
@@ -298,6 +402,55 @@ $("copytxt").onclick=()=>{
   try{navigator.clipboard.writeText(t).then(()=>toast(T[lang].copied),sel)}catch(e){sel()}
   function sel(){const r=document.createRange();r.selectNodeContents($("rtext"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast(T[lang].copyfail)}
 };
+// ---- Listening Party ----
+// One round per day and posts must go up by 23:59 KST that day, so the date comes from the round and closed rounds can't be picked
+LP_START.forEach((t,i)=>$("lpn").add(new Option("",i+1)));
+const lpOpen=i=>Date.now()<=Date.parse(kstDay(LP_START[i])+"T23:59:59+09:00");
+function lpSync(){
+  [...$("lpn").options].forEach((o,i)=>o.disabled=!lpOpen(i));
+  if($("lpn").selectedOptions[0].disabled){const k=LP_START.findIndex((_,i)=>lpOpen(i));if(k>=0){$("lpn").value=k+1;renderLp();drawLp()}}
+}
+{const k=LP_START.findIndex((_,i)=>lpOpen(i));$("lpn").value=k>=0?k+1:LP_START.length}
+$("wvnick").value=ls.get("st_wvnick","");
+let lpAdj=ls.get("st_lpadj",{});$("lpos").value=lpAdj.pos??50;$("lwm").value=lpAdj.wm??15;
+let lpImg=null;
+// Screenshot checklist: what the rules require to be visible; resets when a new screenshot is picked
+for(let i=0;i<3;i++){const l=document.createElement("label");l.innerHTML='<input type="checkbox"><span></span>';$("lpchk").appendChild(l)}
+const lpChecks=[...$("lpchk").querySelectorAll("input")];
+function syncChk(){$("lpchk").classList.toggle("ok",lpChecks.every(c=>c.checked))}
+lpChecks.forEach(c=>c.addEventListener("change",syncChk));
+function renderLp(){$("ltext").textContent=`#HYPERDRIVE_Party_${$("lpn").value}`}
+function drawLp(){
+  if(!lpImg)return;
+  const nick=$("wvnick").value.trim();if(!nick){toast(T[lang].lpnonick);return}
+  const cv=compose([lpImg],`${nick} / ${kstDay(LP_START[$("lpn").value-1]).replace(/-/g,".")}`,$("lpos").value,$("lwm").value);
+  cv.toBlob(b=>{const o=$("lout");if(o.src)URL.revokeObjectURL(o.src);o.src=URL.createObjectURL(b);o.hidden=false;$("lsavehint").hidden=false},"image/png");
+}
+$("lf").addEventListener("change",()=>{
+  const f=$("lf").files[0];if(!f)return;const url=URL.createObjectURL(f);const im=new Image();
+  im.onload=()=>{lpImg=im;$("lp1").src=url;$("lp1").hidden=false;lpChecks.forEach(c=>c.checked=false);syncChk();drawLp()};im.src=url;
+});
+$("wvnick").addEventListener("input",()=>{ls.set("st_wvnick",$("wvnick").value.trim());drawLp()});
+$("lpn").addEventListener("change",()=>{renderLp();drawLp()});
+["lpos","lwm"].forEach(id=>$(id).addEventListener("input",()=>{lpAdj={pos:+$("lpos").value,wm:+$("lwm").value};ls.set("st_lpadj",lpAdj);drawLp()}));
+$("lcopy").onclick=()=>{
+  const t=$("ltext").textContent;
+  try{navigator.clipboard.writeText(t).then(()=>toast(T[lang].copied),sel)}catch(e){sel()}
+  function sel(){const r=document.createRange();r.selectNodeContents($("ltext"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast(T[lang].copyfail)}
+};
+
+// ---- tabs (#lp / #st in the URL opens that tab directly) ----
+let tab=location.hash==="#lp"?"lp":location.hash==="#st"?"st":ls.get("st_tab","st");if(tab!=="lp")tab="st";
+function applyTab(){
+  const L=T[lang];
+  ["st","lp"].forEach(k=>{$("tab-"+k).hidden=k!==tab;$("tab-"+k+"-btn").setAttribute("aria-selected",k===tab)});
+  $("h1a").textContent=tab==="lp"?"LISTENING":"STAR TRACE";$("h1b").textContent=tab==="lp"?"PARTY":"STREAMING";
+  $("sub").textContent=L.sub;$("deadline").textContent=tab==="lp"?L.lpdeadline:L.deadline;
+  tick();
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  tab=b.dataset.tab;ls.set("st_tab",tab);try{history.replaceState(null,"","#"+tab)}catch(e){}applyTab();
+});
 document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>{lang=b.dataset.l;ls.set("st_lang",lang);applyLang()});
 applyLang();
 </script>
