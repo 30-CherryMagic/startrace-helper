@@ -153,6 +153,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
     <p class="alert" data-i="lpmail"></p>
     <label><span data-i="lpround"></span><select id="lpn"></select></label>
     <p class="hint" data-i="lpvary"></p>
+    <div class="btns" id="lpcalbox"><a class="btn ghost" id="lpcal"></a></div>
+    <p class="hint" id="lpcalhint" data-i="lpcalhint"></p>
   </section>
 
   <section>
@@ -192,7 +194,7 @@ const EV_START=Date.UTC(2026,9,12,9,0,0), EV_END=Date.UTC(2026,9,18,14,59,59); /
 const LP_START=[Date.UTC(2026,9,14,7,30),Date.UTC(2026,9,15,11,0),Date.UTC(2026,9,19,9,40),Date.UTC(2026,9,21,10,0)];
 const T={
 zh:{tabst:"串流認證",tablp:"Listening Party",lpdeadline:"本回發文期限（當天 23:59）",
-wvnick:"你的 Weverse 暱稱（PLAVE 社群）",lpmail:"⚠ Weverse 帳號必須能正常收發 email。用了「隱藏 email」之類功能、收不到信的帳號，可能不會被抽中或被取消中獎。",lpround:"參加回次",lpvary:"※ 時間可能依現場進行狀況變動",
+wvnick:"你的 Weverse 暱稱（PLAVE 社群）",lpmail:"⚠ Weverse 帳號必須能正常收發 email。用了「隱藏 email」之類功能、收不到信的帳號，可能不會被抽中或被取消中獎。",lpround:"參加回次",lpcal:n=>n<4?`📅 剩下 ${n} 回行程加入行事曆`:"📅 4 回行程加入行事曆",lpcalhint:"iPhone 會跳出「全部加入」；Android 和電腦會下載行事曆檔，打開就能匯入。行程從開始時間到當天 23:59（發文期限），開始前 10 分鐘提醒。",lpvary:"※ 時間可能依現場進行狀況變動",
 lpshot:"Listening Party 截圖",lpchk:"截圖裡要同時看得到：",lpc:["串流連動狀態", "自己發的聊天訊息", "上方的參與時間"],lppos:"文字高度位置（不要擋到聊天和上方時間）",
 lpsave:"長按上面的圖片選「加入照片」存到相簿，在 Weverse 發文時從相簿選（電腦按右鍵另存）。",lppost:"Weverse 發文用 hashtag",lpopen:"開啟 PLAVE Weverse",
 lphint:"流程：存圖 →「複製文字」→「開啟 PLAVE Weverse」到社群發文，附上圖片、貼上 hashtag。hashtag 的數字要跟參加回次一樣。",lpnonick:"請先填 Weverse 暱稱",
@@ -210,7 +212,7 @@ before:"活動尚未開始（10/12 18:00 KST 開始）",during:"活動進行中�
 tz:o=>`你的裝置時區和 KST 相差 ${o} 小時。截圖上的手機時間會是當地時間，但上傳期限以 KST 為準。`,
 noid:"請先填 X ID",nopost:"填入主貼文網址後，就能直接開啟主貼文。",postok:"已讀到主貼文 ✓",copied:"已複製",copyfail:"無法自動複製，請長按選取",need2:"請選兩張截圖",noshare:"這個瀏覽器不支援分享，請長按圖片拷貝後自己到 X 發文"},
 ja:{tabst:"ストリーミング認証",tablp:"リスニングパーティー",lpdeadline:"今回の投稿期限（当日23:59）",
-wvnick:"Weverseのニックネーム（PLAVEコミュニティ）",lpmail:"⚠ メールを送受信できるWeverseアカウントで参加してください。メール非公開（Hide My Emailなど）でメールが届かない場合、当選対象外または当選取消になることがあります。",lpround:"参加回",lpvary:"※ 進行状況により日程が変わる場合があります",
+wvnick:"Weverseのニックネーム（PLAVEコミュニティ）",lpmail:"⚠ メールを送受信できるWeverseアカウントで参加してください。メール非公開（Hide My Emailなど）でメールが届かない場合、当選対象外または当選取消になることがあります。",lpround:"参加回",lpcal:n=>`📅 ${n<4?`残り${n}回`:"全4回"}の日程をカレンダーに追加`,lpcalhint:"iPhoneでは「すべてを追加」が表示されます。Android・PCではカレンダーファイルがダウンロードされるので、開いて取り込んでください。予定は開始時刻から当日23:59（投稿期限）まで、開始10分前に通知します。",lpvary:"※ 進行状況により日程が変わる場合があります",
 lpshot:"リスニングパーティーのキャプチャ",lpchk:"キャプチャにすべて写っているか確認：",lpc:["ストリーミング連携状態", "自分が送ったチャット", "上部の参加時間"],lppos:"文字の高さ（チャットや上部の時間に重ねない）",
 lpsave:"上の画像を長押しして「\"写真\"に保存」し、Weverseの投稿で写真から選んでください（PCは右クリックで保存）。",lppost:"Weverse投稿用ハッシュタグ",lpopen:"PLAVEのWeverseを開く",
 lphint:"手順：画像を保存 →「テキストをコピー」→「PLAVEのWeverseを開く」でコミュニティに投稿し、画像を添付してハッシュタグを貼り付け。ハッシュタグの数字は参加回と同じにしてください。",lpnonick:"先にWeverseのニックネームを入力してください",
@@ -228,7 +230,7 @@ before:"イベント開始前（10/12 18:00 KST開始）",during:"イベント�
 tz:o=>`端末のタイムゾーンはKSTと${o}時間ずれています。スクショの時刻は現地時間ですが、投稿期限はKST基準です。`,
 noid:"先にX IDを入力してください",nopost:"最初の投稿のURLを入れると、最初の投稿を直接開けます。",postok:"最初の投稿を確認 ✓",copied:"コピーしました",copyfail:"コピーできませんでした。長押しで選択してください",need2:"キャプチャを2枚選んでください",noshare:"このブラウザは共有に対応していません。画像を長押しでコピーしてXで投稿してください"},
 ko:{tabst:"스트리밍 인증",tablp:"리스닝 파티",lpdeadline:"이번 회차 게시 마감 (당일 23:59)",
-wvnick:"내 Weverse 닉네임 (PLAVE 커뮤니티)",lpmail:"⚠ 이메일 수신/발신이 가능한 Weverse 계정으로 참여하세요. 이메일 가리기 등으로 메일을 받을 수 없으면 당첨자 선정에서 제외되거나 당첨이 취소될 수 있어요.",lpround:"참여 회차",lpvary:"※ 진행 상황에 따라 일정이 변동될 수 있어요",
+wvnick:"내 Weverse 닉네임 (PLAVE 커뮤니티)",lpmail:"⚠ 이메일 수신/발신이 가능한 Weverse 계정으로 참여하세요. 이메일 가리기 등으로 메일을 받을 수 없으면 당첨자 선정에서 제외되거나 당첨이 취소될 수 있어요.",lpround:"참여 회차",lpcal:n=>`📅 ${n<4?`남은 ${n}회차`:"4회차"} 일정 캘린더에 추가`,lpcalhint:"iPhone에서는 '모두 추가'가 떠요. Android·PC는 캘린더 파일이 다운로드되니 열어서 가져오세요. 일정은 시작 시간부터 당일 23:59(게시 마감)까지이고, 시작 10분 전에 알림이 와요.",lpvary:"※ 진행 상황에 따라 일정이 변동될 수 있어요",
 lpshot:"리스닝 파티 캡처",lpchk:"캡처에 모두 보이는지 확인:",lpc:["스트리밍 연동 여부", "내가 작성한 채팅", "상단 참여 시간"],lppos:"글자 높이 (채팅과 상단 시간을 가리지 않게)",
 lpsave:"위 이미지를 길게 눌러 '사진 앱에 저장'한 뒤 Weverse 글쓰기에서 사진을 첨부하세요 (PC는 우클릭으로 저장).",lppost:"Weverse 게시용 해시태그",lpopen:"PLAVE Weverse 열기",
 lphint:"순서: 이미지 저장 → '텍스트 복사' → 'PLAVE Weverse 열기'에서 커뮤니티에 글쓰기, 이미지 첨부 후 해시태그 붙여넣기. 해시태그 숫자는 참여 회차와 같아야 해요.",lpnonick:"먼저 Weverse 닉네임을 입력하세요",
@@ -246,7 +248,7 @@ before:"이벤트 시작 전 (10/12 18:00 KST 시작)",during:"이벤트 진행 
 tz:o=>`기기 시간대가 KST와 ${o}시간 차이 나요. 캡처 속 시각은 현지 시간이지만 업로드 마감은 KST 기준이에요.`,
 noid:"먼저 X 아이디를 입력하세요",nopost:"첫 게시물 URL을 넣으면 첫 게시물을 바로 열 수 있어요.",postok:"첫 게시물 확인 ✓",copied:"복사했어요",copyfail:"복사할 수 없어요. 길게 눌러 선택하세요",need2:"캡처 두 장을 선택하세요",noshare:"이 브라우저는 공유를 지원하지 않아요. 이미지를 길게 눌러 복사한 뒤 X에서 직접 올려 주세요"},
 en:{tabst:"Streaming",tablp:"Listening Party",lpdeadline:"Post deadline this round (23:59 that day)",
-wvnick:"Your Weverse nickname (PLAVE community)",lpmail:"⚠ Your Weverse account must be able to send and receive email. Accounts using Hide My Email or similar that can't receive mail may be excluded or have their win cancelled.",lpround:"Round",lpvary:"※ Times may change depending on how the party runs",
+wvnick:"Your Weverse nickname (PLAVE community)",lpmail:"⚠ Your Weverse account must be able to send and receive email. Accounts using Hide My Email or similar that can't receive mail may be excluded or have their win cancelled.",lpround:"Round",lpcal:n=>`📅 Add ${n<4?`the remaining ${n} round${n>1?"s":""}`:"all 4 rounds"} to calendar`,lpcalhint:"On iPhone you'll get \"Add All\". On Android and PC a calendar file downloads; open it to import. Each event runs from the start time to 23:59 that day (the posting deadline), with a reminder 10 minutes before.",lpvary:"※ Times may change depending on how the party runs",
 lpshot:"Listening Party screenshot",lpchk:"Make sure the screenshot shows all of:",lpc:["Streaming link status", "Your own chat message", "Participation time at the top"],lppos:"Text height (keep clear of the chat and the time at the top)",
 lpsave:"Long-press the image above and tap Save to Photos, then attach it from Photos in your Weverse post (on PC: right-click → Save image).",lppost:"Hashtag for your Weverse post",lpopen:"Open PLAVE Weverse",
 lphint:"Steps: save the image → \"Copy text\" → \"Open PLAVE Weverse\" and post in the community, attaching the image and pasting the hashtag. The number in the hashtag must match your round.",lpnonick:"Enter your Weverse nickname first",
@@ -279,6 +281,7 @@ function applyLang(){
   [["rules",L.r],["lrules",L.lpr]].forEach(([id,list])=>{$(id).innerHTML="";list.forEach(x=>{const li=document.createElement("li");li.textContent=x;$(id).appendChild(li)})});
   [...$("lpn").options].forEach((o,i)=>o.textContent=`${L.round(i+1)}  ${kstLabel(LP_START[i])}`);
   $("lpchk").querySelectorAll("label span").forEach((e,i)=>e.textContent=L.lpc[i]);
+  updateCal();
   const off=-new Date().getTimezoneOffset()/60-9;const tz=$("tznote");
   if(off!==0){tz.hidden=false;tz.textContent=L.tz(off>0?"+"+off:off)}else tz.hidden=true;
   renderReply();renderLp();applyTab();
@@ -406,7 +409,13 @@ $("copytxt").onclick=()=>{
 // One round per day and posts must go up by 23:59 KST that day, so the date comes from the round and closed rounds can't be picked
 LP_START.forEach((t,i)=>$("lpn").add(new Option("",i+1)));
 const lpOpen=i=>Date.now()<=Date.parse(kstDay(LP_START[i])+"T23:59:59+09:00");
+// calendar/lp-<lang>-<k>.ics = rounds k..4, so only rounds still open get added
+function updateCal(){
+  const k=LP_START.findIndex((_,i)=>lpOpen(i));$("lpcalbox").hidden=$("lpcalhint").hidden=k<0;
+  if(k>=0){$("lpcal").href=`calendar/lp-${lang}-${k+1}.ics`;$("lpcal").textContent=T[lang].lpcal(LP_START.length-k)}
+}
 function lpSync(){
+  updateCal();
   [...$("lpn").options].forEach((o,i)=>o.disabled=!lpOpen(i));
   if($("lpn").selectedOptions[0].disabled){const k=LP_START.findIndex((_,i)=>lpOpen(i));if(k>=0){$("lpn").value=k+1;renderLp();drawLp()}}
 }

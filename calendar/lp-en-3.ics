@@ -1,0 +1,45 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//startrace-helper//HYPERDRIVE//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:PLAVE Listening Party
+BEGIN:VEVENT
+UID:hyperdrive-lp-3@30-cherrymagic.github.io
+DTSTAMP:20261013T000000Z
+DTSTART:20261019T094000Z
+DTEND:20261019T145900Z
+SUMMARY:PLAVE Listening Party Round 3
+DESCRIPTION:Weverse PLAVE community Listening Party\, round 3\nLink Spotify
+  / Apple Music / Melon\, then chat\nPost by 23:59 (KST) that day\nHashtag:
+  #HYPERDRIVE_Party_3\nProof image helper: https://30-cherrymagic.github.io
+ /startrace-helper/#lp\n※ Times may change depending on how the party run
+ s
+LOCATION:Weverse
+URL:https://weverse.io/plave/feed
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Listening Party is starting soon
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:hyperdrive-lp-4@30-cherrymagic.github.io
+DTSTAMP:20261013T000000Z
+DTSTART:20261021T100000Z
+DTEND:20261021T145900Z
+SUMMARY:PLAVE Listening Party Round 4
+DESCRIPTION:Weverse PLAVE community Listening Party\, round 4\nLink Spotify
+  / Apple Music / Melon\, then chat\nPost by 23:59 (KST) that day\nHashtag:
+  #HYPERDRIVE_Party_4\nProof image helper: https://30-cherrymagic.github.io
+ /startrace-helper/#lp\n※ Times may change depending on how the party run
+ s
+LOCATION:Weverse
+URL:https://weverse.io/plave/feed
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Listening Party is starting soon
+END:VALARM
+END:VEVENT
+END:VCALENDAR

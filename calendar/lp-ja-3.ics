@@ -1,0 +1,47 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//startrace-helper//HYPERDRIVE//JA
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:PLAVE リスニングパーティー
+BEGIN:VEVENT
+UID:hyperdrive-lp-3@30-cherrymagic.github.io
+DTSTAMP:20261013T000000Z
+DTSTART:20261019T094000Z
+DTEND:20261019T145900Z
+SUMMARY:PLAVE リスニングパーティー 第3回
+DESCRIPTION:Weverse PLAVEコミュニティのリスニングパーティ
+ ー 第3回\nSpotify / Apple Music / Melon を連携してからチャッ
+ ト\n投稿期限：当日23:59（KST）\nハッシュタグ：#HYPERDRIVE
+ _Party_3\n認証画像ツール：https://30-cherrymagic.github.io/startra
+ ce-helper/#lp\n※進行状況により日程が変わる場合があり
+ ます
+LOCATION:Weverse
+URL:https://weverse.io/plave/feed
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:リスニングパーティーがまもなく始まります
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:hyperdrive-lp-4@30-cherrymagic.github.io
+DTSTAMP:20261013T000000Z
+DTSTART:20261021T100000Z
+DTEND:20261021T145900Z
+SUMMARY:PLAVE リスニングパーティー 第4回
+DESCRIPTION:Weverse PLAVEコミュニティのリスニングパーティ
+ ー 第4回\nSpotify / Apple Music / Melon を連携してからチャッ
+ ト\n投稿期限：当日23:59（KST）\nハッシュタグ：#HYPERDRIVE
+ _Party_4\n認証画像ツール：https://30-cherrymagic.github.io/startra
+ ce-helper/#lp\n※進行状況により日程が変わる場合があり
+ ます
+LOCATION:Weverse
+URL:https://weverse.io/plave/feed
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:リスニングパーティーがまもなく始まります
+END:VALARM
+END:VEVENT
+END:VCALENDAR

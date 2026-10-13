@@ -1,0 +1,61 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//startrace-helper//HYPERDRIVE//ZH
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:PLAVE Listening Party
+BEGIN:VEVENT
+UID:hyperdrive-lp-2@30-cherrymagic.github.io
+DTSTAMP:20261013T000000Z
+DTSTART:20261015T110000Z
+DTEND:20261015T145900Z
+SUMMARY:PLAVE Listening Party 第2回
+DESCRIPTION:Weverse PLAVE 社群的 Listening Party 第2回\n先連動 Spot
+ ify / Apple Music / Melon 再發聊天\n發文期限：當天 23:59（KST
+ ）\nhashtag：#HYPERDRIVE_Party_2\n認證圖小幫手：https://30-cherry
+ magic.github.io/startrace-helper/#lp\n※時間可能依進行狀況變動
+LOCATION:Weverse
+URL:https://weverse.io/plave/feed
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Listening Party 快開始了
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:hyperdrive-lp-3@30-cherrymagic.github.io
+DTSTAMP:20261013T000000Z
+DTSTART:20261019T094000Z
+DTEND:20261019T145900Z
+SUMMARY:PLAVE Listening Party 第3回
+DESCRIPTION:Weverse PLAVE 社群的 Listening Party 第3回\n先連動 Spot
+ ify / Apple Music / Melon 再發聊天\n發文期限：當天 23:59（KST
+ ）\nhashtag：#HYPERDRIVE_Party_3\n認證圖小幫手：https://30-cherry
+ magic.github.io/startrace-helper/#lp\n※時間可能依進行狀況變動
+LOCATION:Weverse
+URL:https://weverse.io/plave/feed
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Listening Party 快開始了
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:hyperdrive-lp-4@30-cherrymagic.github.io
+DTSTAMP:20261013T000000Z
+DTSTART:20261021T100000Z
+DTEND:20261021T145900Z
+SUMMARY:PLAVE Listening Party 第4回
+DESCRIPTION:Weverse PLAVE 社群的 Listening Party 第4回\n先連動 Spot
+ ify / Apple Music / Melon 再發聊天\n發文期限：當天 23:59（KST
+ ）\nhashtag：#HYPERDRIVE_Party_4\n認證圖小幫手：https://30-cherry
+ magic.github.io/startrace-helper/#lp\n※時間可能依進行狀況變動
+LOCATION:Weverse
+URL:https://weverse.io/plave/feed
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:Listening Party 快開始了
+END:VALARM
+END:VEVENT
+END:VCALENDAR

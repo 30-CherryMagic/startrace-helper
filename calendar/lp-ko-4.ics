@@ -1,0 +1,26 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//startrace-helper//HYPERDRIVE//KO
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:PLAVE 리스닝 파티
+BEGIN:VEVENT
+UID:hyperdrive-lp-4@30-cherrymagic.github.io
+DTSTAMP:20261013T000000Z
+DTSTART:20261021T100000Z
+DTEND:20261021T145900Z
+SUMMARY:PLAVE 리스닝 파티 4회차
+DESCRIPTION:Weverse PLAVE 커뮤니티 리스닝 파티 4회차\nSpotify / 
+ Apple Music / Melon 연동 후 채팅 작성\n게시 마감: 당일 23:59 
+ (KST)\n해시태그: #HYPERDRIVE_Party_4\n인증 이미지 도우미: http
+ s://30-cherrymagic.github.io/startrace-helper/#lp\n※ 진행 상황에 
+ 따라 일정이 변동될 수 있어요
+LOCATION:Weverse
+URL:https://weverse.io/plave/feed
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT10M
+DESCRIPTION:리스닝 파티가 곧 시작돼요
+END:VALARM
+END:VEVENT
+END:VCALENDAR
